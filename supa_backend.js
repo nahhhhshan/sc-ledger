@@ -78,7 +78,7 @@ async function initWeb(){
 
   // 3) 共有URL の欄（右上「共有URL」で開く）
   const shareUrl = location.href;
-  const sp = webPanel(`<h2>共有URL <span class="hint" style="font-weight:400;letter-spacing:0">このURLを知っている人は誰でも読み書きできます。相手以外には教えないでください。</span>
+  const sp = webPanel(`<h2>共有URL <span class="hint" style="font-weight:400;letter-spacing:0">このURLを知っている人は誰でも読み書きできます。一緒に使う人以外には教えないでください。</span>
       <button class="btn ghost" type="button" id="closeShare" style="padding:3px 10px;font-size:12px">閉じる</button></h2>
     <div class="row" style="align-items:center"><input type="text" id="shareUrl" readonly value="${esc(shareUrl)}" style="flex:1 1 260px">
     <button class="btn ghost" type="button" id="copyUrl">コピー</button>
