@@ -1,0 +1,2660 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Star Citizen income &amp; expense ledger: track aUEC by contract type, import from Game.log. Japanese / English.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0c1219">
+<script>window.goatcounter = {no_onload: true};
+function scCount(){ var gc = window.goatcounter; if(!gc || !gc.url || gc.filter()) return;
+  var send = function(){ var u = gc.url(); if(u) new Image().src = u; };
+  if(!('visibilityState' in document) || document.visibilityState === 'visible') send();
+  else document.addEventListener('visibilitychange', function f(){ if(document.visibilityState !== 'visible') return; document.removeEventListener('visibilitychange', f); send(); }); }</script>
+<script data-goatcounter="https://nahshan.goatcounter.com/count" async src="https://gc.zgo.at/count.js" onload="scCount()"></script>
+<title>StarCitizen LEDGER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --surface-2:#f5f7f9; --ink:#16202b; --muted:#5b6878; --line:#d5dce4;
+  --accent:#0e7490; --accent-soft:#d8eef3; --gold:#9a5b00; --pos:#15803d; --neg:#b42318;
+  --grid:#e3e8ee; --p1:#0e7490; --p2:#9a5b00; --p3:#6d28d9;
+  --f-disp:"Chakra Petch","IBM Plex Sans JP",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0c1219; --surface:#131c26; --surface-2:#18232f; --ink:#e3e9f0; --muted:#8594a6; --line:#243140;
+    --accent:#38bdd8; --accent-soft:#12303a; --gold:#e0a93b; --pos:#4ade80; --neg:#f87171; --grid:#1d2834;
+    --p1:#38bdd8; --p2:#e0a93b; --p3:#a78bfa;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0c1219; --surface:#131c26; --surface-2:#18232f; --ink:#e3e9f0; --muted:#8594a6; --line:#243140;
+  --accent:#38bdd8; --accent-soft:#12303a; --gold:#e0a93b; --pos:#4ade80; --neg:#f87171; --grid:#1d2834;
+  --p1:#38bdd8; --p2:#e0a93b; --p3:#a78bfa;
+}
+/* 利用者が選ぶテーマ（紙・森の緑の欄の白は「明るい」と同じ。data-skin。claude.ai が付ける data-theme とは別の印にして、選んだものを優先する） */
+:root[data-skin="light"]{color-scheme:light; --bg:#eef1f4; --surface:#ffffff; --surface-2:#f5f7f9; --ink:#16202b; --muted:#5b6878; --line:#d5dce4; --accent:#0e7490; --accent-soft:#d8eef3; --gold:#9a5b00; --pos:#15803d; --neg:#b42318; --grid:#e3e8ee; --p1:#0e7490; --p2:#9a5b00; --p3:#6d28d9;}
+:root[data-skin="dark"]{color-scheme:dark; --bg:#0c1219; --surface:#131c26; --surface-2:#18232f; --ink:#e3e9f0; --muted:#8594a6; --line:#243140; --accent:#38bdd8; --accent-soft:#12303a; --gold:#e0a93b; --pos:#4ade80; --neg:#f87171; --grid:#1d2834; --p1:#38bdd8; --p2:#e0a93b; --p3:#a78bfa;}
+:root[data-skin="paper"]{color-scheme:light; --bg:#efe9dd; --surface:#ffffff; --surface-2:#f5f7f9; --ink:#2b2722; --muted:#6f665a; --line:#ddd3c2; --accent:#2f6f73; --accent-soft:#dde9e4; --gold:#8a5a12; --pos:#4d7a2e; --neg:#a3412f; --grid:#e6decf; --p1:#2f6f73; --p2:#8a5a12; --p3:#6b4f8a;}
+:root[data-skin="dusk"]{color-scheme:dark; --bg:#2a2d31; --surface:#33373c; --surface-2:#3a3e44; --ink:#d9dcdf; --muted:#9aa0a7; --line:#454a50; --accent:#7fb3c0; --accent-soft:#34474c; --gold:#d8b06a; --pos:#8fc99a; --neg:#e09a8f; --grid:#3c4046; --p1:#7fb3c0; --p2:#d8b06a; --p3:#b9a3d6;}
+:root[data-skin="navy"]{color-scheme:dark; --bg:#141b26; --surface:#1b2431; --surface-2:#212c3a; --ink:#cfd8e3; --muted:#8796a8; --line:#2b3747; --accent:#6fb7c9; --accent-soft:#1f3540; --gold:#d4a65a; --pos:#7dc79a; --neg:#e08e86; --grid:#243041; --p1:#6fb7c9; --p2:#d4a65a; --p3:#a99bd6;}
+:root[data-skin="forest"]{color-scheme:light; --bg:#e6ece4; --surface:#ffffff; --surface-2:#f5f7f9; --ink:#22302a; --muted:#5f6f66; --line:#cdd8cc; --accent:#3b7a64; --accent-soft:#d5e6dc; --gold:#8a6a1e; --pos:#3f7d3a; --neg:#a8473a; --grid:#dbe3d8; --p1:#3b7a64; --p2:#8a6a1e; --p3:#6a568f;}
+/* 背景のマーク（森=葉っぱ、紙=紙飛行機、夕暮れ=三日月、紺=錨）。止まった模様を画面に固定した層に1回描くだけで、動かない */
+:root[data-skin="forest"] body::before,:root[data-skin="paper"] body::before,:root[data-skin="dusk"] body::before,:root[data-skin="navy"] body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1}
+:root[data-skin="forest"] body::before{background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="360" height="360" fill="none" stroke="%233b7a64" stroke-opacity="0.13" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><g transform="translate(38 46) rotate(-12 22.799999999999997 22.799999999999997) scale(1.9)"><path d="M6.5 18.5C4 12 7.5 5.5 19.5 4.5c1 7-1.5 14.5-11 14.5"/><path d="M4.5 21.5c2.5-5.5 6-9 10.5-11.5"/></g><g transform="translate(222 24) rotate(28 15.600000000000001 15.600000000000001) scale(1.3)"><path d="M6.5 18.5C4 12 7.5 5.5 19.5 4.5c1 7-1.5 14.5-11 14.5"/><path d="M4.5 21.5c2.5-5.5 6-9 10.5-11.5"/></g><g transform="translate(132 196) rotate(8 27.599999999999998 27.599999999999998) scale(2.3)"><path d="M6.5 18.5C4 12 7.5 5.5 19.5 4.5c1 7-1.5 14.5-11 14.5"/><path d="M4.5 21.5c2.5-5.5 6-9 10.5-11.5"/></g><g transform="translate(286 248) rotate(-34 19.200000000000003 19.200000000000003) scale(1.6)"><path d="M6.5 18.5C4 12 7.5 5.5 19.5 4.5c1 7-1.5 14.5-11 14.5"/><path d="M4.5 21.5c2.5-5.5 6-9 10.5-11.5"/></g></svg>') 0 0/360px 360px}
+:root[data-skin="paper"] body::before{background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="360" height="360" fill="none" stroke="%232f6f73" stroke-opacity="0.1" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><g transform="translate(38 46) rotate(-12 22.799999999999997 22.799999999999997) scale(1.9)"><path d="M3 11 21 4l-6 16-4-7z"/><path d="m11 13 10-9"/></g><g transform="translate(222 24) rotate(28 15.600000000000001 15.600000000000001) scale(1.3)"><path d="M3 11 21 4l-6 16-4-7z"/><path d="m11 13 10-9"/></g><g transform="translate(132 196) rotate(8 27.599999999999998 27.599999999999998) scale(2.3)"><path d="M3 11 21 4l-6 16-4-7z"/><path d="m11 13 10-9"/></g><g transform="translate(286 248) rotate(-34 19.200000000000003 19.200000000000003) scale(1.6)"><path d="M3 11 21 4l-6 16-4-7z"/><path d="m11 13 10-9"/></g></svg>') 0 0/360px 360px}
+:root[data-skin="dusk"] body::before{background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="360" height="360" fill="none" stroke="%23d8b06a" stroke-opacity="0.09" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><g transform="translate(38 46) rotate(-12 22.799999999999997 22.799999999999997) scale(1.9)"><path d="M19.5 14.5A8 8 0 1 1 9.5 4.5a6.5 6.5 0 0 0 10 10z"/></g><g transform="translate(222 24) rotate(28 15.600000000000001 15.600000000000001) scale(1.3)"><path d="M19.5 14.5A8 8 0 1 1 9.5 4.5a6.5 6.5 0 0 0 10 10z"/></g><g transform="translate(132 196) rotate(8 27.599999999999998 27.599999999999998) scale(2.3)"><path d="M19.5 14.5A8 8 0 1 1 9.5 4.5a6.5 6.5 0 0 0 10 10z"/></g><g transform="translate(286 248) rotate(-34 19.200000000000003 19.200000000000003) scale(1.6)"><path d="M19.5 14.5A8 8 0 1 1 9.5 4.5a6.5 6.5 0 0 0 10 10z"/></g></svg>') 0 0/360px 360px}
+:root[data-skin="navy"] body::before{background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="360" height="360" fill="none" stroke="%236fb7c9" stroke-opacity="0.08" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><g transform="translate(38 46) rotate(-12 22.799999999999997 22.799999999999997) scale(1.9)"><circle cx="12" cy="4.5" r="2"/><path d="M12 6.5v15M8 10h8M4.5 14a7.5 7.5 0 0 0 15 0"/></g><g transform="translate(222 24) rotate(28 15.600000000000001 15.600000000000001) scale(1.3)"><circle cx="12" cy="4.5" r="2"/><path d="M12 6.5v15M8 10h8M4.5 14a7.5 7.5 0 0 0 15 0"/></g><g transform="translate(132 196) rotate(8 27.599999999999998 27.599999999999998) scale(2.3)"><circle cx="12" cy="4.5" r="2"/><path d="M12 6.5v15M8 10h8M4.5 14a7.5 7.5 0 0 0 15 0"/></g><g transform="translate(286 248) rotate(-34 19.200000000000003 19.200000000000003) scale(1.6)"><circle cx="12" cy="4.5" r="2"/><path d="M12 6.5v15M8 10h8M4.5 14a7.5 7.5 0 0 0 15 0"/></g></svg>') 0 0/360px 360px}
+:root[data-skin="rain"]{color-scheme:dark; --bg:#0b131c; --surface:rgba(18,24,32,.88); --surface-2:rgba(26,34,44,.9); --ink:#e4edf6; --muted:#93a7bb; --line:rgba(170,200,230,.20);
+  --accent:#8ec6ff; --accent-soft:rgba(142,198,255,.15); --gold:#ffd27a; --pos:#8fe3ad; --neg:#ff9a9a; --grid:rgba(170,200,230,.12); --p1:#8ec6ff; --p2:#ffd27a; --p3:#c9a7ff;}
+/* 雨: 雨の日の窓ガラス。背景は make_rain_bg.py で作った1枚の絵（ぼけた景色＋まばらな水滴。集合恐怖症に配慮して粒はごく少なく、離して置く）を、動かない固定の層に貼るだけ。
+   スクロールしても描き直さない。動くのは「筋を残して流れ落ちる水滴」の層だけで、それも transform で滑らせるだけ（ぼかし処理は使わない） */
+:root[data-skin="rain"] body{background:#1a1d22}
+:root[data-skin="rain"]::before,:root[data-skin="rain"]::after{content:"";position:fixed;pointer-events:none;z-index:-1;will-change:transform}
+:root[data-skin="rain"]::before{inset:0;background:linear-gradient(180deg,rgba(10,14,20,.45),rgba(10,14,20,.18) 30%,rgba(10,14,20,.30)),url(rain-bg.jpg) center/cover no-repeat,#1a1d22}
+/* 筋を残して流れ落ちる水滴 */
+:root[data-skin="rain"]::after{left:0;right:0;top:-520px;height:calc(100vh + 520px);
+  background-image:radial-gradient(circle 5px at 7px 200px,rgba(255,255,255,.8) 0,rgba(210,232,252,.34) 2.0px,rgba(120,150,180,.12) 3.6px,rgba(4,10,18,.5) 4.7px,transparent 5px),linear-gradient(180deg,transparent 40px,rgba(200,225,250,0.3) 198.5px,transparent 199.5px),radial-gradient(circle 4px at 7px 430px,rgba(255,255,255,.8) 0,rgba(210,232,252,.34) 1.6px,rgba(120,150,180,.12) 2.9px,rgba(4,10,18,.5) 3.7px,transparent 4px),linear-gradient(180deg,transparent 270px,rgba(200,225,250,0.26) 428.8px,transparent 429.8px),radial-gradient(circle 4.5px at 7px 90px,rgba(255,255,255,.8) 0,rgba(210,232,252,.34) 1.8px,rgba(120,150,180,.12) 3.2px,rgba(4,10,18,.5) 4.2px,transparent 4.5px),linear-gradient(180deg,transparent -70px,rgba(200,225,250,0.26) 88.7px,transparent 89.7px);
+  background-size:14px 520px,1px 520px,14px 520px,1px 520px,14px 520px,1px 520px;background-repeat:repeat-y;background-position:23% 0,calc(23% + 3.51px) 0,61% 0,calc(61% + -1.43px) 0,86% 0,calc(86% + -4.68px) 0;
+  animation:raindrip 11s linear infinite}
+@keyframes raindrip{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,520px,0)}}
+/* 欄は濡れたガラス板のように: 上辺がうっすら光り、縁が明るい */
+:root[data-skin="rain"] .panel,:root[data-skin="rain"] .tiles{background-image:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,0) 38%);border-color:rgba(200,215,235,.24);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 10px 30px rgba(0,0,0,.35)}
+:root[data-skin="rain"] .avatarpop,:root[data-skin="rain"] .mlist,:root[data-skin="rain"] .toast{background:rgba(16,22,30,.96)}
+:root[data-skin="rain"] .tile.main .v{text-shadow:0 0 10px rgba(255,210,122,.35)}
+:root[data-skin="rain"] .brand,:root[data-skin="rain"] .sub{text-shadow:0 1px 3px rgba(0,0,0,.7)}
+@media (prefers-reduced-motion: reduce){:root[data-skin="rain"]::after{animation:none}}
+:root[data-skin="anthro"]{color-scheme:dark; --bg:#160d29; --surface:#21143d; --surface-2:#2b1a4f; --ink:#f7ecff; --muted:#b3a8ee; --line:#4e44a0; --accent:#ff1493; --accent-soft:#4a1640; --gold:#ff00ff; --pos:#00ff00; --neg:#ff6fa8; --grid:#33215c; --p1:#ff1493; --p2:#00ff00; --p3:#6a5acd;}   /* アンスロさんの好きな色: #ff1493 #00ff00 #ff00ff #6a5acd */
+:root[data-skin="anthro-light"]{color-scheme:light; --bg:#faf6f9; --surface:#fffdfe; --surface-2:#f7f4fa; --ink:#2a1640; --muted:#6a5acd; --line:#dcd2f6; --accent:#ff1493; --accent-soft:#fbeaf3; --gold:#d100d1; --pos:#00a300; --neg:#c2185b; --grid:#f1edf6; --p1:#ff1493; --p2:#00c800; --p3:#6a5acd;}   /* 明るいバージョン: 白地で読めるよう、文字に使う緑・マゼンタだけ少し濃く */
+:root[data-skin="abyss"]{color-scheme:dark; --bg:#020c18; --surface:rgba(4,24,40,.86); --surface-2:rgba(8,36,56,.86); --ink:#d8f4ff; --muted:#86b8cf; --line:rgba(90,180,220,.24);
+  --accent:#3fd6e8; --accent-soft:rgba(63,214,232,.16); --gold:#7dfbd8; --pos:#62f7b4; --neg:#ff7d9c; --grid:rgba(90,180,220,.13); --p1:#3fd6e8; --p2:#ffb870; --p3:#b694ff;}
+/* 深海（画像なし・CSS で描く）: 上はかすかに光の届く青緑 → 下は真っ暗。光の筋が揺れ、マリンスノーが沈み、泡が浮かぶ。
+   重くならないよう、動きはすべて層を transform で滑らせるだけ（毎コマの描き直し・ぼかしの計算をしない） */
+:root[data-skin="abyss"] body{background:#020c18}
+/* さらに軽く（v3.15.0）: 絶えず動くもの（光の筋の揺れ・マリンスノー・泡）はやめ、すべて止まった絵にした。
+   背景は画面に固定した層に1回描くだけ（body の background-attachment:fixed はスクロールのたびに全面を描き直すので使わない）。
+   スクロールで暗くなるのは、専用の暗幕 #abyssShade の opacity を JS で変えるだけ（ページ全体のスタイル再計算を起こさない） */
+:root[data-skin="abyss"]::before,:root[data-skin="abyss"] body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1}
+/* 海の色（上はかすかに光の届く青緑 → 下は真っ暗）。一番奥の層 */
+/* 海の色（上はかすかに光の届く青緑 → 下は真っ暗）とマリンスノー（止まっている）。暗幕より奥なので、深く潜ると粒も見えなくなる */
+:root[data-skin="abyss"]::before{background-image:radial-gradient(2px 2px at 12% 18%,rgba(220,245,255,.85),transparent 70%),radial-gradient(1.5px 1.5px at 33% 72%,rgba(220,245,255,.7),transparent 70%),
+    radial-gradient(2.2px 2.2px at 58% 36%,rgba(220,245,255,.75),transparent 70%),radial-gradient(1.5px 1.5px at 77% 84%,rgba(220,245,255,.65),transparent 70%),
+    radial-gradient(1.8px 1.8px at 91% 9%,rgba(220,245,255,.75),transparent 70%),radial-gradient(1.4px 1.4px at 46% 54%,rgba(220,245,255,.6),transparent 70%),
+    radial-gradient(1.2px 1.2px at 22% 44%,rgba(200,240,255,.5),transparent 70%),radial-gradient(1px 1px at 68% 12%,rgba(200,240,255,.45),transparent 70%),
+    radial-gradient(1.1px 1.1px at 84% 58%,rgba(200,240,255,.5),transparent 70%),radial-gradient(1px 1px at 6% 88%,rgba(200,240,255,.45),transparent 70%),
+    linear-gradient(180deg,#0b4561 0%,#063049 18%,#03192d 48%,#010a16 78%,#00050b 100%);
+  background-size:300px 300px,300px 300px,300px 300px,300px 300px,300px 300px,300px 300px,180px 180px,180px 180px,180px 180px,180px 180px,100% 100%}
+/* 止まった光の筋: 下へ行くほど自然に消えるよう、上から下へ薄くなるマスクをかける（途中で切れて見えないように） */
+:root[data-skin="abyss"] body::before{background:repeating-linear-gradient(100deg,rgba(150,230,255,0) 0 60px,rgba(150,230,255,.08) 80px,rgba(150,230,255,0) 120px,rgba(150,230,255,0) 190px);
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.5) 30%,transparent 75%);mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.5) 30%,transparent 75%)}
+/* 泡（v3.16.2）: 直径 5〜12px の小さな粒を12個、下から上へ昇らせる。動くのは粒の小さな範囲だけなので、描き直しはごく狭い。
+   1回昇ったら（全体の約3/4の時間）、残りは見えないまま少し休む。暗幕より奥なので深く潜ると見えなくなる */
+#abyssBubbles{display:none}
+:root[data-skin="abyss"] #abyssBubbles{display:block;position:fixed;inset:0;pointer-events:none;z-index:-1;overflow:hidden}
+#abyssBubbles i{position:absolute;bottom:-20px;border-radius:50%;opacity:0;
+  background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.75) 0 12%,transparent 18%),radial-gradient(circle,transparent 52%,rgba(170,235,255,.55) 64%,transparent 72%);
+  animation:abyssbub var(--d) linear var(--w) infinite}
+@keyframes abyssbub{0%{transform:translate3d(0,0,0);opacity:0}4%{opacity:.9}75%{transform:translate3d(var(--x),-110vh,0);opacity:.5}75.1%,100%{transform:translate3d(var(--x),-110vh,0);opacity:0}}
+@media (prefers-reduced-motion: reduce){#abyssBubbles i{animation:none}}
+/* 海の底（v3.17.0、v3.18.0 で物悲しく: 閉じて埋もれた宝箱、背を向けて去るアンコウ。光は届かないので差し込む光はなし）: ページの一番下に、ドット絵（make_seabed.py → embed_seabed.py）を3倍に拡大して置く。止まった絵。
+   光の届かない深さなので暗い色。チョウチンアンコウの灯りのまわりだけ淡く照らす（小さな範囲がゆっくり明滅するだけ） */
+#seabed{display:none}
+:root[data-skin="abyss"] #seabed{display:block;position:relative;height:288px;margin:24px -16px -48px;pointer-events:none;
+  background:/*SEABED*/url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAABgCAYAAABsS6soAAAKzUlEQVR42u2dXWsVRxjHZ05PaX331PgWLL5UQpOAhjRoY4R6VwiVfoVelII3/QC9kd74AXoj2F70qvdFCHiXC21qCRIDag1WDUqIMZIY36F2exFW183s7rw8Mzsz+/+DxJxzdufs7DO/+T/zsmEMgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAn+vrv+QS1AEEQBEEQBEEQBEEQBEEQBEEQBEEMs3UQBEHN1MhgH2AMQRDgB0Gh6NCJk4Wxe3o+QVxDgB/UDOBl37//OknSf6g1aI36Du5LAD/IpQ4cHnYSb6fn38Lv/uskKXKCLdySZmtp5TkqAXIKP1UIVjk+kX7cxXnZ7wAg3F/CGGPXb93lqA3IZyc4PX5eK0b3vMf5zw9XfxZ9BsEPACIGoFqBd/vqRG0xCAcIQQzrN+t0e6L3ddJeHaH3h/uDIC/S3TqcYBu3B4Igm/DLgq0Mhvn3XAARDgAOEIK8mfDY2OliT5cWnblDHsJYy++f7kJDBfygGp2bL2v+qEGIRgAAQlAhvHSA42KxMxUIMQsMQVApzFSARgW/ezen2dlzZ9m9m9NWywEA4f4gqNJhyQCH2vl99cWI9fIAQAiCjN2dqz2+1OXCCcABSh/HGGPLK0/Y3MIjxA12b/C64UcxJoh1gICfEHRZ5Y/p3rEtAQQBxzq3sKU6e+4s+/LoAIcDhKQBKAu6IgGAcIF1Or0Ll6cSE+gBgA2FnyroAEHIl/SWEnoAIFJgBgBCPgPQVXqNAAb8rEAQO3gAQCbY5iardDucbRBaXQbTNdSPRwZFrLmFR7x7xzbhPQb8oBR66T+d4w6dOJlkF2NfuDyVBPM0mA07trJFxAAERen+Uncm+pwq8GSc44HDw8mp706F4wCfLSzDBUa++6PMBUKsMTtFbMGvCIQHDg8nFG6Q20x/FyevIQ1qwPY3TIjQqn/4hLBhX5sY53U7wCLwpZ+1BT8mGB+kmDDBVjgILhAydn11LYo2Lbdla6JjcfIa3zs6gkaBhx9ALPzxPxnQuIYgRXltmxMdzxaWEUkNc4FIhc2VT3X7h08krtNfXchMj5/nNv+gUdnyGJ1ht5ap+5sdu8SxFAZCKsxqGRf00WHp/h1fGfjdvjrBy76XKm9aNtf6YRIE6a/rbX5NcIR5MNqAo2l6OT1+nlOB8OnSIpseP89lvpMqc7jtWV7sCGgeANNUeGSwT9gwL125zqlhFzPojw/0Jkvrdr4DwxR6daXGOlJJjVO3J/v5vaMjldkoKQBVCsSSmLgAWAS2VHfuP2D79+xkSyvPS89T9N10XF0TJnqyTi8k8LmQLmO4i8IAwDDgVwW2VFVgY2z1walbN29yet2xQjCf4gJ+dHxph/AlIbuOTQVssnIJv9jBlwVeHZMhcIAFEx+iAove083RIb/A5otiTnnLxvdCHPuzLRO2cMrCyt6DAwTYAD46QAKANFxp6zzgQPU9wA9gA/QAQR/h2PaFxCFDEmBjWNPI3K4LxFggq+d5gIuT17gqrDbs2MpYxTEyn6m7EXY2rwfYCLS88oT5NpESmjovHsAFZp458Gxh+Z15h/Q1K7PAIlgVAUxmuxxjjM2OXeK+bptLHUiTQScLLd/BNjLYl+guxPZJF6du8P7hnSTt5YfBnuTMlRku+7pvysOv6DUyAOZhJQs5KExg+eDGTNLf7BBF8nKZHevrTv64PscxFrgKufT/83enkl37Bnj6MxQI6mSljHIrXFHhMSyYdrnX1AeXlf0OPqWgJou6k5fiVCgGCFKkwb+Mfl4Y49+O/clDm/BQ4Qi3WajO+hzVYzrd+wtv3tLcHW4bgL6khlTgChmAMtCLDYKy6wKPD/QmF6du8DIHWKQQ0uAsO1QY0qZ6FqDouYDp3wRRcXWyx6Tg6+za+y705mfXfEYHhOljnaoAZwoJ6lQ1hFTX1iSILPRYBA9HSGEmMyN8fKA3KYLgmSszvAyCtuFHaWBSdqhwh1M8CivNwbM7QEzS2apjDwy+veFZ4JVJB4Iu0l9fHZdvTrfKAR7r69a6V0NHethPv4Yzk5rCjLHViZAqFyj6PGOM9QyPJowxNvRwmk1uP/Tm55t6ybz+26373Bb4ygyMatvVSYO5rdzbFgDLegxKCFLA79/tfdrHth9exySIQvqrAsChIz1v/j/510xwaXARBPMATD+3sG7/mnO8WHkgVda6zTvXvDYzMWZUXzYNTMoOWf60ba/P0ZkdLnrMvgn8yo6nGCsUwU42yISBJzjf038uBzNr61Iy8MtDjwW+BEaU1qYQTN3dAkEcio5Nz68Dw073/kQWemuOk2inKTtk+cOpNyJnf6d0gcbwU7Dasu4vCz2TIJOGoqA3NnWK1M7VxnfSdYBZ6FWBL9TJkOMDvUne4bmIRVFMVsHQtA3LmBXVLLRN/TdB8quvbY4FqkBPptd5e4OSwhRy4ydHawm0ovLWGcJKthwT95oHos2dIHmnl/196EgPmfvLuiDK9FC17IUa4rAoVkycISNaCqPKELJJkKLXdCAmOoai91DR7vWJ0BXpBNvLp0/Yhxs3afewdQa4Deeq4hBl1/99/83quJIIcDLgyzvAIsBVdRIil15nB0URPzrxm6+Hh7M3yK6/yAV2FexEKwVg1Y0u6t3KTtw11J989P6q+3rVecw+WNqidIH5Y2YmxrhrAG7f21tbWhG7so2jCoayAJSJ467HU6XvL24ZiPZ+m3TCZefMq6gMUcegCsV8myxjRtXrbwD4cf9niU7glp34Vecx+2/2pdWxL+peJV/BlA1AJVBcBnAIMBQBUAQ7mfsliqMsFO/x3Y106CrXujR3qzSGs7FeFa+qbtlGPSsB0PfUSgaQZb2ILeiZBopvvT8F0GVhKAIgZczmYygGmJXdH9cdqe8dBO8ZHk3q/II2K0gESB9uhq0gtAWmOoBetv4s5E7bBfRk7k+TnGu0DjAGaJl+D5XA73QftB70NusphWKoDddmB9XEtkAKQJmLKrqBFBWSPYfPgUJ582Md10M92HHONlybq7r39R5XOkBXqY9JOU0ECVIYdBhNTO+pDdEaANa9Zs3lzTWpWEoAxQgzqlhwnQmkZTatQ/UNqq6MV+PGAKkrFmms+2UWrlI2m9ANzSzECvNCAJrcoCbemJivGbGA4ZBY1WIW1sSVTWbEqpgbOUUsmKa+TRrfcr13u8l127J5g5rY87vYCxpyY0Xc2LvWJnUcVHXbanIw2giYmHtjqll+xJOd+okx86K4ljJT0mpyANuEu6/1ReFQda6tCamwSTxRxmJMpoXiWspMSQtpiZ201df6onCoJtemUtcYQoEoO0PROVqooLdQCM1xmDQW26kFJYBDgwJFLELiztAkFkQdasvHYHSVYoXuOFzPztbVWOuAQt2Tf3V0xjplujqGMhay5bd8DEZXKRZm0+ylFqHXsa0n2vjcGeuU6eoYWx1UK7YUj3KMq47UyzVM6nLOoUyK+ORWfG53rtsKVQcV7VY47EDA1izEImKOma4DZFjiEkxKXLdbwUqBuOrFdtz7EHOtpsxY1lHJrhfGhjr4ziKfcGrSusa6xoN1+RL902DwrEDUG+IJ8iYFDtEVNdGtoJHb226Gxc7+OORWU7YLNTHokM76GcdNWOwcillphbjWzmR5DB7RBUEs+rW8svofT/8G1IjzEEwAAAAASUVORK5CYII=') center bottom/960px 288px no-repeat,linear-gradient(180deg,transparent 210px,#1d2b33 210px)}
+#seabed .lure{position:absolute;left:calc(50% + 459px);top:66px;width:160px;height:160px;margin:-80px 0 0 -80px;border-radius:50%;
+  background:radial-gradient(circle,rgba(160,240,255,.28) 0,rgba(110,210,240,.10) 35%,transparent 70%);animation:abysslure 5s ease-in-out infinite alternate}
+@keyframes abysslure{from{opacity:.55}to{opacity:1}}
+:root[data-skin="abyss"] #seabed{image-rendering:pixelated}
+@media (prefers-reduced-motion: reduce){#seabed .lure{animation:none}}
+#abyssShade{display:none}
+:root[data-skin="abyss"] #abyssShade{display:block;position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.15;
+  background:radial-gradient(ellipse at 50% 35%,rgba(0,2,7,.86) 0%,rgba(0,2,7,.96) 70%,#000106 100%)}
+:root[data-skin="mobiglas"]{color-scheme:dark; --bg:#071219; --surface:#0b1a24; --surface-2:#0f2230; --ink:#cdeef8; --muted:#6fa3b6; --line:#1d4a5e; --accent:#4fd1f0; --accent-soft:#0f3442; --gold:#7fe3ff; --pos:#5ee0a8; --neg:#ff8a7a; --grid:#123444; --p1:#4fd1f0; --p2:#f0c060; --p3:#b79cff;}
+/* mobiGlas 風の飾り: 枠の角に括弧、見出しは字間を広げる */
+:root[data-skin="mobiglas"] .panel,:root[data-skin="mobiglas"] .tiles,:root[data-skin="mobiglas"] .pcard{position:relative;border-radius:2px;border-color:var(--line)}
+:root[data-skin="mobiglas"] .panel::before,:root[data-skin="mobiglas"] .tiles::before,:root[data-skin="mobiglas"] .pcard::before,:root[data-skin="mobiglas"] .panel::after,:root[data-skin="mobiglas"] .tiles::after,:root[data-skin="mobiglas"] .pcard::after{content:"";position:absolute;width:12px;height:12px;pointer-events:none;z-index:1}
+:root[data-skin="mobiglas"] .panel::before,:root[data-skin="mobiglas"] .tiles::before,:root[data-skin="mobiglas"] .pcard::before{top:-1px;left:-1px;border-top:2px solid var(--accent);border-left:2px solid var(--accent)}
+:root[data-skin="mobiglas"] .panel::after,:root[data-skin="mobiglas"] .tiles::after,:root[data-skin="mobiglas"] .pcard::after{bottom:-1px;right:-1px;border-bottom:2px solid var(--accent);border-right:2px solid var(--accent)}
+:root[data-skin="mobiglas"] .panel h2,:root[data-skin="mobiglas"] .tile .k{letter-spacing:.14em}
+:root[data-skin="mobiglas"] .tiles{overflow:visible}
+:root[data-skin="mobiglas"] .btn,:root[data-skin="mobiglas"] .chip,:root[data-skin="mobiglas"] .range button{border-radius:2px}
+*{box-sizing:border-box}
+[hidden]{display:none!important}   /* .row などの display 指定より「隠す」を優先（Web 版にはこのリセットが無いため） */
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.55;padding-inline:16px;padding-block:20px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:18px}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.pos{color:var(--pos)} .neg{color:var(--neg)}
+header{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:4px 16px}   /* 見出しは折り返さず、ボタンの方を折り返す */
+.brand{font-family:var(--f-disp);font-weight:600;font-size:26px;letter-spacing:.04em;margin:0;white-space:nowrap}
+.brand span{color:var(--accent)}
+.sub .ver{margin-left:10px;font-family:var(--f-mono);font-size:11px;letter-spacing:0;border:1px solid var(--line);border-radius:3px;padding:0 5px}
+.sub{color:var(--muted);font-size:12px;letter-spacing:.06em}
+.hmeta{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:4px 18px;font-size:12px;color:var(--muted)}
+.hmeta>div:empty{display:none}
+.hmeta #peers{order:3;margin-left:auto}
+.hmeta b{color:var(--ink);font-weight:500}
+.hbtns{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.hrow{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;align-items:center}
+.hrow>*{height:32px}
+.hrow .skinsel{padding:0 8px;border-color:var(--line);color:var(--accent);font-size:13px;background:transparent;max-width:170px;text-overflow:ellipsis}
+@media (max-width:640px){header{grid-template-columns:minmax(0,1fr)} .brand{white-space:normal;font-size:22px} .hbtns{align-items:flex-start} .hrow{justify-content:flex-start}}
+.hbtns .btn{padding:6px 14px;font-size:13px}
+.hbtns .iconbtn{padding:6px 9px;display:inline-flex;align-items:center;position:relative}
+.skinsel{font:inherit;font-size:12px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:5px 6px;cursor:pointer}
+.iconbtn svg{width:16px;height:16px}
+.iconbtn.has-update{border-color:var(--accent)}
+.iconbtn.has-update::after{content:'';position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:var(--neg)}
+.peers{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;align-items:center}
+.peer{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:2px 9px 2px 7px;color:var(--ink)}
+.peer::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--pos)}
+button.peer{font:inherit;cursor:pointer}
+.peerme:hover,.peerme:focus-visible{border-color:var(--accent)}
+.av{width:20px;height:20px;border-radius:50%;object-fit:cover;flex:none;display:inline-grid;place-items:center;font-size:11px;font-weight:600;color:var(--surface);font-family:var(--f-body)}
+.avlg{width:40px;height:40px;font-size:18px}
+.pav{grid-row:1/span 2;align-self:center;background:none;border:0;padding:0;border-radius:50%;line-height:0}
+/* 新しく届いた記録を一瞬光らせる */
+.ent.fresh{animation:freshglow 2.4s ease-out}
+@keyframes freshglow{0%{background:color-mix(in srgb, var(--accent) 30%, transparent);box-shadow:inset 3px 0 0 var(--accent)}100%{background:transparent;box-shadow:inset 3px 0 0 transparent}}
+/* 画面の上に一瞬出す表示（SCAN COMPLETE・実績解除） */
+.fxbanner{position:fixed;z-index:40;top:18%;left:50%;transform:translateX(-50%);min-width:min(420px,calc(100% - 32px));padding:14px 22px;text-align:center;
+  background:color-mix(in srgb, var(--surface) 92%, transparent);border:1px solid var(--accent);border-radius:3px;color:var(--ink);pointer-events:none;
+  font-family:var(--f-disp);letter-spacing:.18em;animation:fxin 2.2s ease-out forwards;overflow:hidden}
+.fxbanner b{display:block;font-size:20px;color:var(--accent)}
+.fxbanner small{display:block;letter-spacing:.04em;font-family:var(--f-body);color:var(--muted);margin-top:4px}
+.fxbanner::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,color-mix(in srgb, var(--accent) 35%, transparent),transparent);animation:fxsweep .9s ease-out}
+@keyframes fxin{0%{opacity:0;transform:translate(-50%,-8px)}12%{opacity:1;transform:translate(-50%,0)}80%{opacity:1}100%{opacity:0}}
+@keyframes fxsweep{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+/* 船を買ったときのお祝いカード */
+.celebrate{position:fixed;z-index:45;inset:0;display:grid;place-items:center;background:rgb(0 0 0 / .45);padding:16px}
+.celebrate .card{width:min(420px,100%);background:var(--surface);border:1px solid var(--accent);border-radius:6px;overflow:hidden;animation:fxpop .45s ease-out}
+.celebrate img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:var(--surface-2)}
+.celebrate .body{padding:14px 18px;display:grid;gap:4px}
+.celebrate .body .k{font-family:var(--f-disp);letter-spacing:.16em;font-size:12px;color:var(--accent)}
+.celebrate .body .n{font-family:var(--f-disp);font-size:22px;font-weight:600}
+@keyframes fxpop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+/* 隠しコマンド: 量子ジャンプ */
+.qt{position:fixed;z-index:50;inset:0;pointer-events:none;overflow:hidden;background:rgb(3 8 14 / .55);animation:qtfade 1.9s ease-in-out forwards}
+.qt i{position:absolute;height:2px;left:-40%;width:40%;background:linear-gradient(90deg,transparent,#9fe8ff);animation:qtstreak .7s linear infinite}
+.qt b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-disp);letter-spacing:.5em;color:#cff4ff;font-size:clamp(18px,4vw,34px)}
+@keyframes qtstreak{to{transform:translateX(350%)}}
+@keyframes qtfade{0%{opacity:0}15%{opacity:1}80%{opacity:1}100%{opacity:0}}
+/* 実績 */
+.achbtn{display:inline-flex;align-items:center;gap:5px}
+.achbtn svg{width:15px;height:15px;color:var(--gold)}
+.achs{display:grid;gap:4px}
+.achcat{font-size:13px;font-weight:600;margin:10px 0 4px;letter-spacing:.06em}
+.achcat:first-child{margin-top:0}
+.achcat small{font-weight:400;color:var(--muted);margin-left:6px;font-family:var(--f-mono)}
+.achgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px}
+.ach{border:1px dashed var(--line);border-radius:4px;padding:8px 10px;display:grid;grid-template-columns:auto 1fr;column-gap:8px;align-items:center;color:var(--muted)}
+.ach svg{width:22px;height:22px;grid-row:1/span 2}
+.ach b{font-weight:500;font-size:13px}
+.ach small{font-size:11px}
+.ach.on{border-style:solid;border-color:var(--accent);color:var(--ink);background:var(--accent-soft)}
+.ach.on svg{color:var(--gold)}
+@media (prefers-reduced-motion: reduce){.ent.fresh,.fxbanner,.fxbanner::after,.celebrate .card,.qt,.qt i{animation-duration:.01s}}
+button.pav{cursor:pointer}
+button.pav:hover .av,button.pav:focus-visible .av{outline:2px solid var(--accent);outline-offset:2px}
+.avatarpop{position:fixed;z-index:20;top:calc(64px + env(safe-area-inset-top,0px));right:16px;width:min(340px,calc(100% - 32px));background:var(--surface);border:1px solid var(--line);border-radius:8px;box-shadow:0 12px 32px rgb(0 0 0 / .25);padding:14px;display:grid;gap:10px}
+.avhead{display:flex;justify-content:space-between;align-items:center;font-family:var(--f-disp);letter-spacing:.04em}
+.avbody{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}
+
+.peoplebar{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.pcard{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--pc);border-radius:6px;padding:10px 14px;display:grid;grid-template-columns:auto 1fr;column-gap:12px;row-gap:2px}
+.pname{font-size:12px;color:var(--muted);letter-spacing:.04em}
+.pname small{font-size:11px;margin-left:4px}
+.pname .phandle{display:block;margin-left:0;font-family:var(--f-mono)}
+.pbal{font-size:22px;font-weight:500}
+.pcard,.tile.main{position:relative}
+.padj{position:absolute;top:8px;right:10px;font:inherit;font-size:11px;color:var(--accent);background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:2px 8px;cursor:pointer}
+.padj:hover,.padj:focus-visible{border-color:var(--accent)}
+.pbal .u{font-size:12px;color:var(--muted);margin-left:4px;font-family:var(--f-disp)}
+.whowrap{display:grid;gap:4px}
+.whowrap select{font:inherit;background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:7px 8px;color:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.scopetag{font-family:var(--f-body);font-weight:400;font-size:12px;color:var(--muted);letter-spacing:0;margin-left:4px}
+.periodbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.periodcustom{display:inline-flex;align-items:center;gap:6px;font-size:13px}
+.periodcustom input{width:auto;background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:3px 6px;font-size:12px}
+.tiles{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+/* 上段（帳簿の形）: 左に帳簿（メンバーの行 → 1本線 → 合計 → 二重線）、右に今日・直近7日・期間の収支。
+   名前と金額を近づけ、金額は同じ大きさ・同じ書体で桁をそろえる。内側の枠は減らし、帳簿は線だけで区切る */
+.tiles.ledgertop{display:grid;grid-template-columns:minmax(0,560px) minmax(0,1fr);gap:0 28px;background:var(--surface);padding:16px 18px;align-items:start}
+.ledgertop .book{display:grid}
+.ledgertop .peoplebar{grid-template-columns:1fr;gap:2px}
+.ledgertop .pcard{grid-template-columns:auto 1fr auto;align-items:center;column-gap:12px;padding:6px 10px 6px 12px;background:none;border:0;border-left:4px solid var(--pc);border-radius:0}
+.ledgertop .pcard .pav{grid-row:1/span 2}
+.ledgertop .pcard .pname{grid-column:2}
+.ledgertop .pcard .pbal{grid-column:3;grid-row:1/span 2;text-align:right;font-size:22px;font-family:var(--f-mono)}
+.ledgertop .pcard .padj{position:static;grid-column:2;justify-self:start;margin-top:2px}
+.ledgertop .tile.main{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 16px;background:none;
+  border-top:1px solid var(--muted);border-bottom:4px double var(--muted);padding:8px 10px 8px 16px;margin-top:8px}
+.ledgertop .tile.main .k{font-size:13px;color:var(--ink);font-weight:600;letter-spacing:.06em}
+.ledgertop .tile.main .k small{font-weight:400;color:var(--muted);margin-left:8px;font-size:11px}
+.ledgertop .tile.main .v{white-space:nowrap;font-size:22px;font-weight:700}
+.ledgertop .tile.main .padj{position:static}
+.ledgertop .statrow{display:grid;grid-template-columns:1fr;gap:0;align-self:stretch;align-content:start;border-left:1px solid var(--line);padding-left:18px}
+.ledgertop .statrow .tile{background:none;padding:8px 0;border-bottom:1px solid var(--line)}
+.ledgertop .statrow .tile:last-child{border-bottom:0}
+:root[data-skin="mobiglas"] .ledgertop .pcard::before,:root[data-skin="mobiglas"] .ledgertop .pcard::after{display:none}
+@media (max-width:820px){.tiles.ledgertop{grid-template-columns:1fr}.ledgertop .statrow{border-left:0;padding-left:0;margin-top:12px;grid-template-columns:repeat(3,1fr);gap:0 12px}.ledgertop .statrow .tile{border-bottom:0}}
+@media (max-width:480px){.ledgertop .statrow{grid-template-columns:1fr 1fr}.ledgertop .pcard .pbal,.ledgertop .tile.main .v{font-size:18px}}
+.ledgertop .pcard .pbal{white-space:nowrap}
+.tile{background:var(--surface);padding:14px 16px;display:grid;gap:4px;align-content:start}
+.tile .k{font-size:11px;letter-spacing:.08em;color:var(--muted)}
+.tile .v{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:20px;font-weight:500}
+.tile.main .v{font-size:32px;color:var(--gold)}
+.tile .u{font-size:12px;color:var(--muted);margin-left:4px;font-family:var(--f-disp)}
+@media (max-width:720px){.tiles:not(.ledgertop){grid-template-columns:1fr 1fr}.tile.main{grid-column:1/-1}}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px}
+.panel h2{font-family:var(--f-disp);font-weight:600;font-size:15px;letter-spacing:.06em;margin:0 0 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.grid2{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:820px){.grid2{grid-template-columns:1fr}}
+
+/* form */
+form{display:grid;gap:12px}
+.row{display:flex;flex-wrap:wrap;gap:10px}
+.row>label{display:grid;gap:4px;flex:1 1 140px}
+.lab{font-size:11px;letter-spacing:.08em;color:var(--muted)}
+input,select,button{font:inherit;color:inherit}
+input[type=text],input[type=date],input[type=number]{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:8px 10px}
+input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:5px 11px;font-size:13px;cursor:pointer}
+.chip:hover{border-color:var(--accent)}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:500}
+.chip.out[aria-pressed="true"]{border-color:var(--neg)}
+.chipgroup{display:grid;gap:6px}
+.dir{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;flex:0 0 auto;align-self:end}
+.dir button{border:0;background:var(--surface-2);padding:8px 14px;cursor:pointer}
+.dir button[aria-pressed="true"].in{background:var(--pos);color:var(--surface)}
+.dir button[aria-pressed="true"].out{background:var(--neg);color:var(--surface)}
+.amount-wrap{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+.amount-wrap label{flex:1 1 160px;display:grid;gap:4px}
+.preview{font-size:12px;color:var(--muted);min-height:1.2em}
+.btn{background:var(--accent);color:var(--surface);border:0;border-radius:4px;padding:9px 18px;font-weight:600;cursor:pointer;letter-spacing:.04em}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--line);font-weight:500}
+.btn:disabled{opacity:.5;cursor:default}
+
+/* mission search */
+.msearch{position:relative;display:grid;gap:4px}
+.mlist{position:absolute;z-index:5;left:0;right:0;top:100%;margin:4px 0 0;padding:4px;list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:6px;box-shadow:0 8px 24px rgb(0 0 0 / .18);max-height:320px;overflow-y:auto}
+.mlist li{padding:7px 9px;border-radius:4px;cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:2px 10px}
+.mlist li[aria-selected="true"],.mlist li:hover{background:var(--accent-soft)}
+.mlist .mt{font-weight:500;overflow-wrap:anywhere}
+.mlist .mr{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;color:var(--gold)}
+.mlist .mm{grid-column:1/-1;font-size:12px;color:var(--muted)}
+.mlist .none{color:var(--muted);cursor:default}
+.mpicked{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:12px;border:1px dashed var(--accent);border-radius:4px;padding:6px 10px;background:var(--accent-soft)}
+.mpicked b{font-weight:600;font-size:13px}
+.linkbtn{background:none;border:0;color:var(--accent);cursor:pointer;padding:0;font-size:12px;text-decoration:underline}
+.il{color:var(--neg);font-size:11px;border:1px solid var(--neg);border-radius:3px;padding:0 4px;margin-left:4px}
+
+/* chart */
+.range{display:inline-flex;gap:4px;flex-wrap:wrap}
+.range button{font-size:12px;border:1px solid var(--line);background:var(--surface-2);border-radius:4px;padding:3px 9px;cursor:pointer}
+.range button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);font-weight:600}
+.chart{width:100%;overflow-x:auto}
+.chart svg{display:block;width:100%;height:auto;min-width:320px}
+.chart text{fill:var(--muted);font-family:var(--f-mono);font-size:11px}
+
+/* breakdown */
+.bars{display:grid;gap:8px}
+.dstats{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:10px;font-size:12px;color:var(--muted)}
+.dstats b{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:500;color:var(--ink);font-size:14px;margin-left:6px}
+.bar{display:grid;grid-template-columns:8.5em 1fr 7.5em;gap:10px;align-items:center;font-size:13px}
+.bar>span:first-child{overflow-wrap:anywhere}
+.bar .track{height:10px;background:var(--surface-2);border-radius:2px;overflow:hidden}
+.bar .fill{height:100%;background:var(--accent)}
+.bar .fill.out{background:var(--neg);opacity:.75}
+.bar .amt{text-align:right}
+.empty{color:var(--muted);font-size:13px}
+.subtabs{display:flex;gap:4px;margin:-4px 0 12px}
+
+/* days */
+.day{border-top:1px solid var(--line);padding-block:10px}
+/* 日別の記録は長くなるので、欄の中だけでスクロールする（ページ全体は短く保つ） */
+#days{max-height:min(640px,70vh);overflow-y:auto;overscroll-behavior:contain;padding-right:6px;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+#days .day:first-child{border-top:0}
+#days .dayhead{position:sticky;top:0;z-index:1;background:var(--surface)}
+.day:first-child{border-top:0;padding-top:0}
+.dayhead{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px}
+.dayhead .d{font-family:var(--f-disp);font-weight:600;font-size:15px}
+.dayhead .w{color:var(--muted);font-size:12px}
+.dayhead .net{margin-left:auto;font-weight:500}
+.dayhead .bal{color:var(--muted);font-size:12px}
+.achrow{display:flex;align-items:center;gap:6px;padding:5px 0 0 2px;font-size:12px;color:var(--gold)}
+.achrow svg{width:14px;height:14px;flex:none}
+.achrow b{font-weight:600}
+.achrow small{color:var(--muted)}
+.ent{display:grid;grid-template-columns:3.2em auto 1fr auto auto;gap:10px;align-items:center;padding:6px 0 0 2px;font-size:13px}
+.etime{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:12px;color:var(--muted)}
+.tag{font-size:11px;border:1px solid var(--line);border-radius:3px;padding:1px 7px;white-space:nowrap;background:var(--surface-2)}
+/* 記録の種類のアイコン（線画、文字色に合わせる） */
+.ico{width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:.3em;flex:none}
+.tag .ico{width:12px;height:12px;vertical-align:-2px;margin-right:3px}
+/* 所持金のメーター表示: 数字ごとに 0〜9 の帯を縦に並べ、新しい数字まで回す */
+.odo{display:inline-flex;align-items:flex-end}
+.odo-d{display:inline-block;height:1.15em;line-height:1.15em;overflow:hidden}
+.odo-col{display:flex;flex-direction:column;transition:transform 1s cubic-bezier(.2,.8,.2,1)}
+.odo-col>span{height:1.15em;text-align:center}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion: reduce){.odo-col{transition:none}}
+.tag.adj{border-style:dashed}
+.memo{color:var(--muted);overflow-wrap:anywhere}
+.memo .ship{color:var(--ink);font-size:12px;margin-right:6px}
+.who{display:inline-block;font-size:11px;font-weight:600;border-radius:3px;padding:0 5px;margin-right:6px;color:var(--surface)}
+.del{border:1px solid transparent;background:none;color:var(--muted);cursor:pointer;border-radius:4px;padding:2px 8px;font-size:12px}
+.del:hover{border-color:var(--line)}
+.del.arm{color:var(--neg);border-color:var(--neg)}
+
+.demo{background:var(--accent-soft);border:1px dashed var(--accent);border-radius:6px;padding:10px 14px;font-size:13px}
+.settings{display:grid;gap:14px}
+.settings .row{align-items:end}
+.hint{font-size:12px;color:var(--muted);margin:0}
+/* log import */
+.logintro{display:grid;gap:10px}
+.exedl{display:grid;gap:6px;margin-top:10px;justify-items:start}
+.exedl details{font-size:12px;color:var(--muted)}
+.exedl summary{cursor:pointer;color:var(--accent)}
+.exedl ol{margin:6px 0;padding-left:20px;display:grid;gap:3px}
+.exealert{border:1px solid var(--neg);background:color-mix(in srgb, var(--neg) 8%, var(--surface));border-radius:6px;padding:12px 14px;display:grid;gap:10px;font-size:13px}
+.exealert p{margin:0}
+.pctool{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--muted);margin-top:10px}
+.pctool b{color:var(--ink);font-weight:500}
+.pctool input{margin-top:2px}
+.dropzone{border:2px dashed var(--line);border-radius:6px;padding:14px;text-align:center;font-size:13px;color:var(--muted)}
+.dropzone.over{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+code{font-family:var(--f-mono);font-size:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:3px;padding:0 4px}
+#logStatus{margin-top:10px}
+#logResult{display:grid;gap:10px;margin-top:10px}
+.logbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between}
+.logtable{max-height:440px;overflow:auto;border:1px solid var(--line);border-radius:4px}
+.logtable table{width:100%;border-collapse:collapse;font-size:13px}
+.logtable th{position:sticky;top:0;background:var(--surface-2);text-align:left;font-weight:500;font-size:11px;letter-spacing:.06em;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--line)}
+.logtable td{padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.logtable tr.done td{opacity:.45}
+.logtable tr.warn td{background:color-mix(in srgb, var(--neg) 7%, transparent)}
+.logtable td.amt{text-align:right;white-space:nowrap}
+.logtable td.when{white-space:nowrap;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.logtable td.what{overflow-wrap:anywhere;min-width:12em}
+.logtable select{font:inherit;font-size:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:3px;padding:2px 4px;color:var(--ink)}
+.logtable .note{display:block;font-size:11px;color:var(--muted)}
+.appfoot .fanote{flex-basis:100%}
+.appfoot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 16px;font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+.danger{border-top:1px solid var(--line);padding-top:14px;display:grid;gap:10px}
+.backup{border-top:1px solid var(--line);padding-top:14px;display:grid;gap:8px}
+.backup .hint{margin:0}
+.danger-btn{color:var(--neg);justify-self:start}
+.confirm{border:1px solid var(--neg);border-radius:6px;padding:12px;display:grid;gap:10px;font-size:13px}
+.confirm p{margin:0}
+.danger-go{background:var(--neg)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:4px;font-size:13px;z-index:9;max-width:calc(100% - 32px)}
+@media (prefers-reduced-motion:no-preference){.fill{transition:width .3s ease}}
+</style>
+</head>
+<body>
+
+<div id="abyssBubbles" aria-hidden="true"><i style="left:6%;width:9px;height:9px;--d:15s;--w:-2s;--x:10px"></i><i style="left:14%;width:11px;height:11px;--d:19s;--w:-9s;--x:14px"></i><i style="left:22%;width:6px;height:6px;--d:14s;--w:-5s;--x:-6px"></i><i style="left:31%;width:8px;height:8px;--d:17s;--w:-12s;--x:8px"></i><i style="left:41%;width:6px;height:6px;--d:13s;--w:-1s;--x:-8px"></i><i style="left:49%;width:10px;height:10px;--d:18s;--w:-7s;--x:12px"></i><i style="left:58%;width:7px;height:7px;--d:16s;--w:-14s;--x:-10px"></i><i style="left:67%;width:12px;height:12px;--d:21s;--w:-4s;--x:10px"></i><i style="left:74%;width:6px;height:6px;--d:14s;--w:-10s;--x:-6px"></i><i style="left:82%;width:9px;height:9px;--d:17s;--w:-3s;--x:-12px"></i><i style="left:90%;width:7px;height:7px;--d:15s;--w:-8s;--x:8px"></i><i style="left:96%;width:5px;height:5px;--d:12s;--w:-6s;--x:-4px"></i></div>
+<div id="abyssShade" aria-hidden="true"></div>
+<div class="wrap">
+  <header>
+    <div>
+      <h1 class="brand" id="brand">StarCitizen <span>LEDGER</span></h1>
+      <div class="sub"><span id="subtitle">STAR CITIZEN ・ 契約と所持金の記録</span><span class="ver" id="verTag" title=""></span></div>
+    </div>
+    <div class="hbtns">
+      <!-- 1段目: テーマと取り込み（よく使う「ログを取り込む」を右端に） -->
+      <div class="hrow">
+  <select class="skinsel" id="skinSel" aria-label="画面のテーマ" title="画面のテーマ（このブラウザで覚えます）">
+          <option value="">テーマ: 自動</option><option value="light">明るい</option><option value="dark">暗い</option>
+          <option value="paper">紙</option><option value="dusk">夕暮れグレー</option><option value="navy">深い紺</option><option value="forest">森の緑</option><option value="mobiglas">mobiGlas 風</option><option value="rain">雨の窓</option><option value="anthro">ネオン（暗い）</option><option value="anthro-light">ネオン（明るい）</option><option value="abyss">深海</option>
+        </select>
+  <button class="btn ghost" type="button" id="hdrExe" aria-expanded="false" hidden title="この PC の取り込みプログラム（Windows）の設定とダウンロード">取り込みプログラム</button>
+  <button class="btn" type="button" id="hdrImport" title="ゲームのログを読み、新しい記録をそのまま取り込みます">ログを取り込む</button>
+      </div>
+      <!-- 2段目: 実績・共有URL・更新 -->
+      <div class="hrow">
+  <select class="skinsel" id="langSel" aria-label="言語 / Language" title="言語 / Language" data-noi18n><option value="ja">日本語</option><option value="en">English</option></select>
+  <button class="btn ghost achbtn" type="button" id="hdrAch" title="実績の欄へ移動">実績</button>
+  <button class="btn ghost" type="button" id="hdrShare" aria-expanded="false" hidden>共有URL</button>
+  <button class="btn ghost iconbtn" type="button" id="hdrReload" title="ページを最新の状態に更新" aria-label="ページを更新">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="hmeta">
+      <div class="peers" id="peers" hidden></div>
+      <div id="storeNote">保存先を確認中…</div>
+      <div id="dataNote"></div>
+    </div>
+  </header>
+
+  <div class="demo" id="roNote" hidden>このアプリは閲覧のみの権限で開かれています。記録を追加するには、持ち主に「編集可能」以上で共有してもらってください。</div>
+
+  <section class="exealert" id="exeAlert" role="alert" hidden>
+    <p id="exeAlertMsg"></p>
+    <div class="row"><a class="btn" href="https://github.com/nahhhhshan/auec-ledger/releases/latest/download/SCLogImport.exe" target="_blank" rel="noopener">取り込みプログラムをダウンロード</a>
+      <button type="button" class="btn ghost" id="exeAlertHelp">使い方</button>
+      <button type="button" class="btn ghost" id="exeAlertClose">閉じる</button></div>
+  </section>
+
+  <section class="periodbar" aria-label="表示する期間">
+    <span class="lab">表示する期間</span>
+    <span class="range" id="periodChips"></span>
+    <span class="periodcustom" id="periodCustom" hidden>
+      <input type="date" id="pFrom" aria-label="開始日"> 〜 <input type="date" id="pTo" aria-label="終了日（空欄なら今日まで）">
+    </span>
+  </section>
+
+  <!-- 上段は帳簿の形: 各行 = メンバーのカード（名前と所持金）、1本線、合計、二重線。その下に今日・直近7日・期間の収支 -->
+  <section class="tiles ledgertop" aria-label="概要">
+    <div class="book">
+    <div class="peoplebar" id="peopleBar" aria-label="一人ひとりの所持金" hidden></div>
+    <div class="tile main"><div class="k" id="tBalLabel">現在の所持金</div><div class="v" id="tBal">0<span class="u">aUEC</span></div>
+      <button type="button" class="padj" data-adj="" id="soloAdj" hidden title="ゲーム内の所持金に合わせる">残高補正</button></div>
+    </div>
+    <div class="statrow">
+      <div class="tile"><div class="k">今日の収支</div><div class="v" id="tToday">0</div></div>
+      <div class="tile"><div class="k">直近7日</div><div class="v" id="tWeek">0</div></div>
+      <div class="tile"><div class="k" id="tCountLabel">記録件数</div><div class="v" id="tCount">0</div></div>
+    </div>
+  </section>
+
+  <div class="grid2">
+    <section class="panel">
+      <h2><span>収支の内訳<small class="scopetag" id="scope1"></small></span> <span class="range" id="range1"></span></h2>
+      <div class="bars" id="bars"></div>
+    </section>
+
+    <section class="panel">
+      <h2><span>所持金の推移<small class="scopetag" id="scope2"></small></span> <span class="range" id="range2"></span></h2>
+      <div class="chart" id="chart"></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2><span><span id="dailyTitle">日別の収支</span><small class="scopetag" id="scope3"></small></span> <span class="range" id="range3"></span></h2>
+    <div class="subtabs range" id="unitTabs"></div>
+    <div class="chart" id="daily"></div>
+    <div class="dstats" id="dailyStats"></div>
+  </section>
+
+  <div class="grid2">
+    <section class="panel">
+      <h2>日別の記録 <button type="button" class="btn ghost" id="csvBtn" style="padding:4px 12px;font-size:12px">CSVをコピー</button></h2>
+      <div id="days"></div>
+    </section>
+
+    <section class="panel settings">
+      <h2>所持金の設定</h2>
+      <label id="whoWrap" class="whowrap" hidden><span class="lab">対象の人</span><select id="who"></select></label>
+      <div class="persontools" id="personTools" hidden>
+        <div class="row" id="dropRow" hidden>
+          <span class="hint" id="dropMsg" style="flex:1 1 220px"></span>
+          <button class="btn ghost danger-btn" type="button" id="dropPerson">一覧から外す</button>
+        </div>
+      </div>
+      <div class="row">
+        <label><span class="lab" id="startLabel">記録開始時の所持金 (aUEC)</span><input type="text" id="startBal" inputmode="decimal" placeholder="0"></label>
+        <button class="btn ghost" type="button" id="saveStart">保存</button>
+      </div>
+      <p class="hint">記録を始めた時点でゲーム内に持っていた金額です。推移はここから計算します。</p>
+      <div class="row" id="legacyRow" hidden>
+        <span class="hint" id="legacyMsg" style="flex:1 1 220px"></span>
+        <button class="btn ghost" type="button" id="moveLegacy">対象の人に移す</button>
+      </div>
+      <div class="row">
+        <label><span class="lab" id="actualLabel">実際の所持金に合わせる (aUEC)</span><input type="text" id="actualBal" inputmode="decimal" placeholder="ゲーム内の現在額"></label>
+        <button class="btn ghost" type="button" id="saveActual">補正を記録</button>
+      </div>
+      <p class="hint">記録し忘れや死亡時の損失などでズレたときに使います。差額を「残高補正」として今日の日付で記録します。</p>
+      <div class="backup" id="backupBox" hidden>
+        <p class="hint">記録はこのブラウザの中にだけ保存されています。ブラウザのデータを消すと記録も消えるので、ときどきバックアップを保存してください。</p>
+        <div class="row">
+          <button class="btn ghost" type="button" id="bkSave">バックアップを保存</button>
+          <label class="btn ghost" for="bkFile" style="display:inline-block">バックアップから復元</label>
+          <input type="file" id="bkFile" accept=".json,application/json" hidden>
+        </div>
+      </div>
+      <div class="danger">
+        <button class="btn ghost danger-btn" type="button" id="clearBtn">すべての記録を削除</button>
+        <div id="clearConfirm" class="confirm" hidden>
+          <p id="clearMsg"></p>
+          <div class="row">
+            <button class="btn danger-go" type="button" id="clearGo">削除する</button>
+            <button class="btn ghost" type="button" id="clearCancel">やめる</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="panel" id="achPanel">
+    <h2><span>実績 <small class="scopetag" id="achCount"></small></span></h2>
+    <div class="achs" id="achs"></div>
+  </section>
+
+  <!-- ゲームのログから取り込む: 普段は隠す（取り込みは上の「ログを取り込む」で行う。読み込みの仕組みはこの欄のものを使う） -->
+  <section class="panel" id="logPanel" hidden>
+    <h2>ゲームのログから取り込む</h2>
+    <div class="logintro">
+      <p class="hint">Star Citizen の <code>Game.log</code> から、契約の報酬・ショップでの購入・貨物の売却を拾って記録候補にします。過去のログは <code>logbackups</code> フォルダにあり、まとめて選べます。ファイルはこのブラウザの中で読むだけで、どこにも送りません。</p>
+      <div class="row" style="align-items:center">
+        <input type="text" id="logPath" readonly value="C:\Program Files\Roberts Space Industries\StarCitizen\LIVE" style="flex:1 1 280px">
+        <button class="btn ghost" type="button" id="copyLogPath">場所をコピー</button>
+        <label class="btn" for="logDir" style="display:inline-block">LIVE フォルダごと選ぶ</label>
+        <label class="btn ghost" for="logFiles" style="display:inline-block">ファイルを選ぶ</label>
+        <input type="file" id="logDir" webkitdirectory directory multiple hidden>
+        <input type="file" id="logFiles" accept=".log,.txt" multiple hidden>
+      </div>
+      <div class="dropzone" id="logDrop">エクスプローラーから <b>logbackups</b> フォルダ（または <b>LIVE</b> フォルダや <b>Game.log</b>）を、ここにドラッグして落としても読み込めます</div>
+      <p class="hint">フォルダ選択の画面にパスを入れたいときは、下の「フォルダー:」欄に <code>C:\Program Files\Roberts Space Industries\StarCitizen\LIVE\logbackups</code> を貼り付けて「アップロード」を押してください。</p>
+      <p class="hint"><b>おすすめ:</b>「LIVE フォルダごと選ぶ」で上の場所の <code>LIVE</code> フォルダを選ぶと、今のログ（<code>Game.log</code>・最後の1回分）と過去のログ（<code>logbackups</code> 内）をまとめて読みます。ブラウザに「アップロードしますか」と聞かれますが、実際にはどこにも送らず、このページの中で読むだけです。</p>
+    </div>
+    <div id="logStatus" class="hint" role="status"></div>
+    <div id="logResult" hidden>
+      <div class="logbar">
+        <span class="range" id="logFilters"></span>
+        <span class="range"><button type="button" id="logAll">すべて選択</button><button type="button" id="logNone">選択を解除</button></span>
+      </div>
+      <div class="logtable" id="logTable"></div>
+      <div class="logbar">
+        <span id="logSum" class="num"></span>
+        <span class="row"><button class="btn ghost" type="button" id="logClose">閉じる</button><button class="btn" type="button" id="logImport">選んだ記録を取り込む</button></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 記録を追加（手入力）: 普段は隠す -->
+  <section class="panel" id="addPanel" hidden>
+    <h2>記録を追加（手入力）</h2>
+    <form id="form" autocomplete="off">
+      <div class="msearch">
+        <label for="mq" class="lab">ミッションから選ぶ（任意・英語名で検索）</label>
+        <input type="text" id="mq" placeholder="例: covalex / bounty / salvage" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="mlist">
+        <ul class="mlist" id="mlist" role="listbox" hidden></ul>
+        <div class="mpicked" id="mpicked" hidden></div>
+      </div>
+      <div class="chipgroup">
+        <span class="lab">契約種別・収入</span>
+        <div class="chips" id="chipsIn"></div>
+        <span class="lab">支出</span>
+        <div class="chips" id="chipsOut"></div>
+      </div>
+      <div class="amount-wrap">
+        <div class="dir" role="group" aria-label="収入か支出か">
+          <button type="button" class="in" id="dirIn" aria-pressed="true">＋ 収入</button>
+          <button type="button" class="out" id="dirOut" aria-pressed="false">− 支出</button>
+        </div>
+        <label><span class="lab">金額 (aUEC)　例: 45000 / 45k / 1.2m</span>
+          <input type="text" id="amount" inputmode="decimal" placeholder="45000" required></label>
+      </div>
+      <div class="preview num" id="preview"></div>
+      <div class="row">
+        <label style="flex:0 1 170px"><span class="lab">日付</span><input type="date" id="date" required></label>
+        <label><span class="lab">使った船（任意）</span><input type="text" id="ship" list="shiplist" placeholder="例: Vulture"></label>
+        <datalist id="shiplist"></datalist>
+      </div>
+      <label style="display:grid;gap:4px"><span class="lab">メモ（任意）</span><input type="text" id="memo" maxlength="120" placeholder="例: Covalex 配達 x3、Hurston→ArcCorp"></label>
+      <div><button class="btn" type="submit" id="submitBtn">記録する</button></div>
+    </form>
+  </section>
+  <footer class="appfoot" id="appFoot"></footer>
+</div>
+<div id="seabed" aria-hidden="true"><i class="lure"></i></div>
+<div class="avatarpop" id="avatarPop" role="dialog" aria-label="アイコンの設定" hidden>
+  <div class="avhead"><b>アイコンの設定</b><button type="button" class="btn ghost" id="avClose" style="padding:2px 10px;font-size:12px">閉じる</button></div>
+  <div class="avbody">
+    <div id="avPreview"></div>
+    <p class="hint">Discord や Steam のアイコンを右クリック →「画像をコピー」して、ここで <b>Ctrl + V</b> で貼り付けてください。画像ファイルからも選べます。</p>
+  </div>
+  <div class="row">
+    <label class="btn" for="avFile" id="avPick" tabindex="0" style="display:inline-block">画像ファイルを選ぶ</label>
+    <input type="file" id="avFile" accept="image/*" hidden>
+    <button type="button" class="btn ghost danger-btn" id="avRemove">アイコンを外す</button>
+  </div>
+  <div class="hint" id="avMsg" role="status"></div>
+</div>
+<div class="avatarpop" id="exePop" role="dialog" aria-label="取り込みプログラム" hidden>
+  <div class="avhead"><b>取り込みプログラム（Windows）</b><button type="button" class="btn ghost" id="exeClose" style="padding:2px 10px;font-size:12px">閉じる</button></div>
+  <div class="hint" id="exeState"></div>
+  <label class="pctool"><input type="checkbox" id="usePcTool">
+    <span><b>この PC の取り込みプログラムを使う</b>（「ログを取り込む」でフォルダを選ばずに取り込みます。exe を入れた PC だけで有効にしてください）</span></label>
+  <div class="exedl">
+    <a class="btn ghost" href="https://github.com/nahhhhshan/auec-ledger/releases/latest/download/SCLogImport.exe" target="_blank" rel="noopener">最新版をダウンロード</a>
+    <details>
+        <summary>使い方</summary>
+        <ol>
+          <li>ダウンロードした <code>SCLogImport.exe</code> を、ずっと置いておく場所（ドキュメントなど）に置いてダブルクリック（「PC が保護されました」と出たら「詳細情報」→「実行」）。古い exe があるときは、同じ場所に上書きしてからダブルクリック</li>
+          <li>初めての場合は、共有帳簿のURL（右上「共有URL」→「コピー」）、このページで使っている名前、Star Citizen の LIVE フォルダ（自動で見つかれば Enter だけ）を入力</li>
+          <li>「この PC の取り込みプログラムを使う」にチェックを入れると、右上の「ログを取り込む」だけで取り込めます（初回はブラウザの確認で「常に許可」→「開く」）</li>
+          <li>Star Citizen を起動してから取り込むと、遊んでいる間は、<b>F1（mobiGlas）を開いて PrtSc</b> で撮ると、左下の所持金を読んで帳簿とずれた分を「残高補正」として記録します（見張り中はタスクバー右下の通知領域にアイコンが出て、結果は Windows の通知でも知らせます。右クリックで「見張りをやめる」。ゲームを終えると見張りもアイコンも消えます）</li>
+        </ol>
+        <p class="hint">exe を別の場所に移したら、もう一度ダブルクリックしてください。共有URLや名前は exe には入っておらず、各 PC に保存されます。</p>
+      </details>
+  </div>
+</div>
+<div class="avatarpop" id="adjPop" role="dialog" aria-label="残高補正" hidden>
+  <div class="avhead"><b id="adjTitle">残高補正</b><button type="button" class="btn ghost" id="adjClose" style="padding:2px 10px;font-size:12px">閉じる</button></div>
+  <div class="hint" id="adjNow"></div>
+  <form id="adjForm" class="row" style="align-items:end">
+    <label style="flex:1 1 160px"><span class="lab">ゲーム内の所持金 (aUEC)</span><input type="text" id="adjInput" inputmode="decimal" placeholder="例: 2498287 / 2.5m" autocomplete="off"></label>
+    <button class="btn" type="submit">記録</button>
+  </form>
+  <div class="hint" id="adjPreview" role="status"></div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>/*I18N_EN*/
+/* 英語の翻訳辞書（embed_i18n.py で ledger.html に埋め込む）。
+   exact: 画面の文そのまま（前後の空白を除き、連続する空白は1つにした形）→ 英語
+   html : 文の途中に太字やコードがある段落（innerHTML）→ 英語の innerHTML
+   re   : 数字などが入る文。[正規表現, 置き換え（文字列か関数）]。上から順に最初に合ったもの
+   words: どれにも合わないときに部分的に置き換える語（種別名など） */
+(function(){
+const TYPE = {
+  '配達':'Delivery', '貨物輸送':'Hauling', 'サルベージ':'Salvage', '採掘':'Mining', '賞金首':'Bounty Hunting',
+  '傭兵・戦闘':'Mercenary / Combat', '調査・回収':'Investigation / Recovery', '交易':'Trading', 'その他収入':'Other Income',
+  'Wikelo との交換':'Wikelo Trade', '修理・補給':'Repair & Resupply', '船・装備購入':'Ships & Gear', '罰金・保険':'Fines & Insurance',
+  'その他支出':'Other Expenses', '残高補正':'Balance Adjustment', 'メンバー間の送金':'Member Transfer',
+};
+const TIER = {'デビュー':'Debut', '見習い':'Apprentice', 'ベテラン':'Veteran', '達人':'Master'};
+const WD = {'日':'Sun', '月':'Mon', '火':'Tue', '水':'Wed', '木':'Thu', '金':'Fri', '土':'Sat'};
+const MON = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const UNIT1 = {'日':'day', '週':'week', '月':'month'};
+const UNITN = {'日':'days', '週':'weeks', 'か月':'months'};
+// 「1,000万」「1億」→ 10M / 100M
+const man = s => {
+  const m = String(s).match(/^([\d,.]+)(億|万)$/);
+  if(!m) return s;
+  const n = parseFloat(m[1].replace(/,/g, '')) * (m[2] === '億' ? 1e8 : 1e4);
+  return n >= 1e9 ? (n / 1e9) + 'B' : n >= 1e6 ? (n / 1e6) + 'M' : (n / 1e3) + 'K';
+};
+const T = s => (typeof tr === 'function' ? tr(s) : s);
+const paren = s => s.replace(/（/g, ' (').replace(/）/g, ')').replace(/推定 /g, 'est. ').replace(/報酬(\d+)件/g, '$1 rewards').replace(/、/g, ', ').replace(/^ /, '');
+
+const exact = {
+  // 見出し・ボタン
+  'aUEC 収支帳':'aUEC Ledger', 'aUEC 共有収支帳':'aUEC Shared Ledger', 'StarCitizen LEDGER':'StarCitizen LEDGER',
+  'STAR CITIZEN ・ 契約と所持金の記録':'STAR CITIZEN · Contracts & Balance Log', 'STAR CITIZEN ・ 共有口座':'STAR CITIZEN · Shared Account',
+  'テーマ: 自動':'Theme: Auto', '明るい':'Light', '暗い':'Dark', '紙':'Paper', '夕暮れグレー':'Dusk Gray', '深い紺':'Deep Navy', '森の緑':'Forest Green',
+  'mobiGlas 風':'mobiGlas', '雨の窓':'Rainy Window', 'ネオン（暗い）':'Neon (Dark)', 'ネオン（明るい）':'Neon (Light)', '深海':'Deep Sea',
+  '俺がどうせ好きな雨テーマ':'Rainy Window', 'アンスロさんがどうせ好きな色（暗い）':'Neon (Dark)', 'アンスロさんがどうせ好きな色（明るい）':'Neon (Light)', 'アンスロさんがどうせ好きな深海':'Deep Sea',
+  '画面のテーマ':'Theme', '画面のテーマ（このブラウザで覚えます）':'Theme (remembered in this browser)', '言語 / Language':'Language',
+  '取り込みプログラム':'Importer', 'この PC の取り込みプログラム（Windows）の設定とダウンロード':'Settings and download for the Windows importer on this PC',
+  'ログを取り込む':'Import Logs', 'ゲームのログを読み、新しい記録をそのまま取り込みます':'Read the game logs and import new records',
+  '実績':'Achievements', '実績の欄へ移動':'Jump to achievements', '共有URL':'Share URL', 'ページを更新':'Reload page', 'ページを最新の状態に更新':'Reload to the latest version',
+  '保存先を確認中…':'Checking storage…', '保存先:':'Storage:', 'このブラウザ内':'this browser', '（CSVで控えを取ってください）':' (keep a copy via CSV)',
+  'このアプリは閲覧のみの権限で開かれています。記録を追加するには、持ち主に「編集可能」以上で共有してもらってください。':'This app was opened with view-only access. To add records, ask the owner to share it with edit access.',
+  '取り込みプログラムをダウンロード':'Download importer', '使い方':'How to use', '閉じる':'Close',
+  '表示する期間':'Period', '全期間':'All time', '日付を指定':'Custom dates', '開始日':'Start date', '終了日（空欄なら今日まで）':'End date (blank = today)',
+  '概要':'Summary', '一人ひとりの所持金':'Balance per member', '現在の所持金':'Current balance', 'ゲーム内の所持金に合わせる':'Match in-game balance',
+  '今日の収支':'Today', '直近7日':'Last 7 days', '記録件数':'Records',
+  '収支の内訳':'Breakdown', '所持金の推移':'Balance history', '日別の収支':'Daily income & expenses', '週別の収支':'Weekly income & expenses', '月別の収支':'Monthly income & expenses',
+  '日別':'Daily', '週別':'Weekly', '月別':'Monthly', '日別の記録':'Daily log', 'CSVをコピー':'Copy CSV',
+  '所持金の設定':'Balance settings', '対象の人':'Member', '一覧から外す':'Remove from list', '記録開始時の所持金 (aUEC)':'Balance when you started recording (aUEC)',
+  '保存':'Save', '記録を始めた時点でゲーム内に持っていた金額です。推移はここから計算します。':'The in-game balance when you started recording. The history is calculated from here.',
+  '対象の人に移す':'Move to member', '実際の所持金に合わせる (aUEC)':'Match actual balance (aUEC)', 'ゲーム内の現在額':'Current in-game amount', '補正を記録':'Record adjustment',
+  '記録し忘れや死亡時の損失などでズレたときに使います。差額を「残高補正」として今日の日付で記録します。':'Use this when the balance drifts (missed records, losses on death, etc.). The difference is recorded as a "Balance Adjustment" dated today.',
+  'すべての記録を削除':'Delete all records', '削除する':'Delete', 'やめる':'Cancel', 'この記録を削除':'Delete this record', '削除':'Delete',
+  '記録はこのブラウザの中にだけ保存されています。ブラウザのデータを消すと記録も消えるので、ときどきバックアップを保存してください。':'Your records are stored only in this browser. Clearing browser data deletes them, so save a backup now and then.',
+  'バックアップを保存':'Save backup', 'バックアップから復元':'Restore from backup',
+  'ゲームのログから取り込む':'Import from game logs', '場所をコピー':'Copy path', 'LIVE フォルダごと選ぶ':'Choose the LIVE folder', 'ファイルを選ぶ':'Choose files',
+  'すべて選択':'Select all', '選択を解除':'Deselect', '選んだ記録を取り込む':'Import selected', 'すべて':'All', '取り込む':'Import', '取り込み済み':'Already imported',
+  '日時':'Date/time', '内容':'Details', '種別':'Type', '金額':'Amount',
+  '記録を追加（手入力）':'Add a record (manual)', 'ミッションから選ぶ（任意・英語名で検索）':'Pick a mission (optional, search by English name)',
+  '例: covalex / bounty / salvage':'e.g. covalex / bounty / salvage', '収入か支出か':'Income or expense', '＋ 収入':'+ Income', '− 支出':'− Expense',
+  '契約種別・収入':'Contract type / income', '金額 (aUEC) 例: 45000 / 45k / 1.2m':'Amount (aUEC) e.g. 45000 / 45k / 1.2m', '日付':'Date',
+  '使った船（任意）':'Ship used (optional)', '例: Vulture':'e.g. Vulture', 'メモ（任意）':'Memo (optional)', '例: Covalex 配達 x3、Hurston→ArcCorp':'e.g. Covalex delivery x3, Hurston→ArcCorp',
+  '記録する':'Add record', '例: 2498287 / 2.5m':'e.g. 2498287 / 2.5m', 'ゲーム内の所持金 (aUEC)':'In-game balance (aUEC)',
+  'アイコンの設定':'Avatar', '画像ファイルを選ぶ':'Choose image file', 'アイコンを外す':'Remove avatar', 'クリックでアイコンを設定':'Click to set your avatar',
+  '最新版をダウンロード':'Download latest version', 'この PC の取り込みプログラムを使う':'Use the importer on this PC', '取り込みプログラム（Windows）':'Importer (Windows)',
+  '合計':'Total', '収入':'Income', '支出':'Expenses', '差引':'Net', '開始':'Start', '収入の合計':'Total income', '支出の合計':'Total expenses',
+  '1日あたりの差引':'Net per day', '1週あたりの差引':'Net per week', '1か月あたりの差引':'Net per month',
+  'この期間の記録はありません。':'No records in this period.', 'この期間の収支はありません。':'No income or expenses in this period.',
+  '記録を追加すると、ここに日ごとの所持金の推移が表示されます。':'Add records to see your daily balance history here.',
+  '記録はまだありません。「記録を追加」から最初の1件を入れてください。':'No records yet. Add your first one with "Add a record".',
+  '日ごとの終了時所持金の推移':'Daily closing balance history', '日ごとの収入と支出':'Daily income and expenses', '週ごとの収入と支出':'Weekly income and expenses', '月ごとの収入と支出':'Monthly income and expenses',
+  '報酬変動':'variable', '違法':'Illegal', 'ミッションデータがありません':'No mission data', '見つかりません。種別と金額を手入力してください':'Not found. Enter the type and amount manually.',
+  '共有':'Shared', '仕事':'Work', '稼ぎ':'Earnings', '記録':'Records', '所持金':'Balance', '買い物':'Shopping', '時間':'Time', '実績解除:':'Unlocked:',
+  '更新日時':'Updated', '（公開版）':' (public)', '（個人用）':' (personal)', '（共有用）':' (shared)', '（共有用・Web）':' (shared, web)',
+  '非公式のファン作品です。Cloud Imperium Games とは関係ありません。Star Citizen® は Cloud Imperium Rights LLC の商標です。記録はこのブラウザ内に保存され、どこにも送信されません。':
+    'Unofficial fan-made tool, not affiliated with Cloud Imperium Games. Star Citizen® is a trademark of Cloud Imperium Rights LLC. Your records are stored in this browser and never sent anywhere.',
+  '接続中':'Online', 'あなた':'you', '（あなた）':' (you)', 'メンバー':'Member', '不明':'Unknown', '未割り当て':'Unassigned',
+  '契約報酬':'Contract reward', 'スクリーンショットの所持金に合わせる':'Matched to screenshot balance',
+  'ミッション・船データを読み込めませんでした（手入力はできます）':'Could not load mission/ship data (manual entry still works)',
+  'おめでとう':'Congrats',
+  // 実績の名前
+  'はじめの一歩':'First Step', '書き始め':'Getting Started', '記録係':'Record Keeper', '几帳面':'Meticulous', '帳簿番':'Bookkeeper', '記録魔':'Record Fanatic', '千の記録':'A Thousand Records', '航海日誌':"Captain's Log",
+  '10日目':'Day 10', '30日目':'Day 30', '100日目':'Day 100', '200日目':'Day 200', '三日坊主卒業':'Past Day Three', '皆勤賞':'Perfect Attendance', '二週間連続':'Two-Week Streak', '一か月連続':'One-Month Streak',
+  '小銭持ち':'Pocket Change', '貯金家':'Saver', 'ミリオネア':'Millionaire', '小金持ち':'Comfortable', '大富豪':'Tycoon', '艦隊の資金':'Fleet Fund', '企業家':'Entrepreneur', '財閥':'Conglomerate', '億万長者':'Billionaire',
+  'いい日':'Good Day', '稼ぎ日':'Payday', '稼ぎ日和':'Perfect Payday', 'ゴールドラッシュ':'Gold Rush', '大当たり':'Jackpot', '伝説の一日':'Legendary Day',
+  'いい週':'Good Week', 'いい月':'Good Month',
+  '品目コレクター':'Commodity Collector', '目利き':'Keen Eye', '市場通':'Market Expert', '寄り道':'Detour', '常連':'Regular', '星系めぐり':'System Tour',
+  '新しい翼':'New Wings', 'いい買い物':'Good Buy', '大きな買い物':'Big Purchase', '中型船オーナー':'Mid-size Owner', '旗艦の主':'Flagship Owner', '大型船オーナー':'Capital Owner',
+  '船団長':'Fleet Leader', '艦隊司令':'Fleet Admiral', '豪華客船の主':'Luxury Liner Owner', 'お得意様':'Valued Customer', '上客':'Premium Customer', '大口顧客':'Major Client',
+  '造船所の恩人':"Shipyard's Benefactor", '億の買い物':'Hundred-Million Buy', '買い物上手':'Smart Shopper', '買い物好き':'Shopaholic', '買い物の達人':'Master Shopper', 'カタログ制覇':'Catalog Complete',
+  '最初の愛機':'First Ship', '格納庫がにぎやか':'Busy Hangar', 'コレクター':'Collector', '艦隊':'Fleet',
+  'Cutlass 乗り':'Cutlass Pilot', '一人採掘':'Solo Miner', '一人サルベージ':'Solo Salvager', '海賊の美学':'Pirate Aesthetic', '三人採掘':'Crew Miner', 'コンステレーション':'Constellation',
+  'キャタピラー':'Caterpillar', '空飛ぶ給油所':'Flying Gas Station', '大型輸送':'Heavy Hauler', 'ハーキュリーズ':'Hercules', '解体屋の城':"Salvager's Castle", '探検家':'Explorer',
+  '鉄壁の護衛':'Iron Escort', '砲艦の主':'Gunship Owner', '超豪華ヨット':'Superyacht',
+  'はじめてのレンタル':'First Rental', 'レンタル常連':'Rental Regular', 'レンタル王':'Rental King',
+  '整備士の友':"Mechanic's Friend", '修理工場の常連':'Repair Shop Regular', '壊し屋':'Wrecker', '修理工場の大株主':'Repair Shop Shareholder',
+  '前科一犯':'First Offense', '常習犯':'Repeat Offender', '罰金・保険を払う':'Pay a fine or insurance', '罰金・保険を 5回 払う':'Pay fines or insurance 5 times',
+  'Wikelo の客':"Wikelo's Customer", 'Wikelo の常連':"Wikelo's Regular", 'Wikelo の友':"Wikelo's Friend",
+  'クアンタニウム納品':'Quantainium Delivery', 'クアンタニウム便':'Quantainium Run', 'Polaris まであと少し':'Almost a Polaris', 'Idris の材料':'Idris Materials',
+  '北極星':'North Star', 'Polaris を手に入れる':'Get a Polaris', 'フリゲートの主':'Frigate Owner', 'Idris を手に入れる':'Get an Idris',
+  'はじめての送金':'First Transfer', '持ちつ持たれつ':'Give and Take', '息ぴったり':'In Sync',
+  'スキャナー':'Scanner', 'スキャンの達人':'Scan Master', '所持金ウォッチャー':'Balance Watcher',
+  'ワイプを越えて':'Beyond the Wipe', '記録が2つ以上の期にまたがる':'Have records spanning two or more periods',
+  '夜更かし':'Night Owl', '深夜（0〜4時）の記録':'Record late at night (0–4 h)', '早起き':'Early Bird', '早朝（5〜7時）の記録':'Record early in the morning (5–7 h)',
+  '週末パイロット':'Weekend Pilot', '週末の住人':'Weekend Regular',
+  // 取り込みプログラム（exe）まわりの説明
+  'exe を別の場所に移したら、もう一度ダブルクリックしてください。共有URLや名前は exe には入っておらず、各 PC に保存されます。':'If you move the exe, double-click it again. The share URL and name are not in the exe; they are saved on each PC.',
+  '初めての場合は、共有帳簿のURL（右上「共有URL」→「コピー」）、このページで使っている名前、Star Citizen の LIVE フォルダ（自動で見つかれば Enter だけ）を入力':'On first run, enter the shared ledger URL (top right "Share URL" → "Copy"), the name you use on this page, and the Star Citizen LIVE folder (just press Enter if it is found automatically)',
+  '「この PC の取り込みプログラムを使う」にチェックを入れると、右上の「ログを取り込む」だけで取り込めます（初回はブラウザの確認で「常に許可」→「開く」）':'Check "Use the importer on this PC" to import with just "Import Logs" at the top right (the first time, choose "Always allow" → "Open" in the browser prompt)',
+  '（「ログを取り込む」でフォルダを選ばずに取り込みます。exe を入れた PC だけで有効にしてください）':' ("Import Logs" imports without picking a folder. Enable this only on a PC with the exe installed.)',
+};
+
+const html = {
+  'Star Citizen の <code>Game.log</code> から、契約の報酬・ショップでの購入・貨物の売却を拾って記録候補にします。過去のログは <code>logbackups</code> フォルダにあり、まとめて選べます。ファイルはこのブラウザの中で読むだけで、どこにも送りません。':
+    'Finds contract rewards, shop purchases and cargo sales in Star Citizen\'s <code>Game.log</code> and lists them as records to import. Older logs are in the <code>logbackups</code> folder and can be selected all at once. Files are only read inside this browser and never sent anywhere.',
+  'エクスプローラーから <b>logbackups</b> フォルダ（または <b>LIVE</b> フォルダや <b>Game.log</b>）を、ここにドラッグして落としても読み込めます':
+    'You can also drag the <b>logbackups</b> folder (or the <b>LIVE</b> folder or <b>Game.log</b>) from Explorer and drop it here',
+  'フォルダ選択の画面にパスを入れたいときは、下の「フォルダー:」欄に <code>C:\\Program Files\\Roberts Space Industries\\StarCitizen\\LIVE\\logbackups</code> を貼り付けて「アップロード」を押してください。':
+    'To type the path in the folder picker, paste <code>C:\\Program Files\\Roberts Space Industries\\StarCitizen\\LIVE\\logbackups</code> into the "Folder:" box and press "Upload".',
+  '<b>おすすめ:</b>「LIVE フォルダごと選ぶ」で上の場所の <code>LIVE</code> フォルダを選ぶと、今のログ（<code>Game.log</code>・最後の1回分）と過去のログ（<code>logbackups</code> 内）をまとめて読みます。ブラウザに「アップロードしますか」と聞かれますが、実際にはどこにも送らず、このページの中で読むだけです。':
+    '<b>Tip:</b> Choose the <code>LIVE</code> folder above with "Choose the LIVE folder" to read the current log (<code>Game.log</code>, your last session) and older logs (in <code>logbackups</code>) together. The browser asks whether to "upload", but nothing is sent; the files are only read inside this page.',
+  'Discord や Steam のアイコンを右クリック →「画像をコピー」して、ここで <b>Ctrl + V</b> で貼り付けてください。画像ファイルからも選べます。':
+    'Right-click your Discord or Steam avatar → "Copy image", then paste it here with <b>Ctrl + V</b>. You can also choose an image file.',
+  'ダウンロードした <code>SCLogImport.exe</code> を、ずっと置いておく場所（ドキュメントなど）に置いてダブルクリック（「PC が保護されました」と出たら「詳細情報」→「実行」）。古い exe があるときは、同じ場所に上書きしてからダブルクリック':
+    'Put the downloaded <code>SCLogImport.exe</code> somewhere permanent (e.g. Documents) and double-click it (if you see "Windows protected your PC", click "More info" → "Run anyway"). If you have an older exe, overwrite it in the same place, then double-click.',
+  'Star Citizen を起動してから取り込むと、遊んでいる間は、<b>F1（mobiGlas）を開いて PrtSc</b> で撮ると、左下の所持金を読んで帳簿とずれた分を「残高補正」として記録します（見張り中はタスクバー右下の通知領域にアイコンが出て、結果は Windows の通知でも知らせます。右クリックで「見張りをやめる」。ゲームを終えると見張りもアイコンも消えます）':
+    'If you import after starting Star Citizen, then while you play, <b>open F1 (mobiGlas) and press PrtSc</b>: the balance at the bottom left is read and any difference from the ledger is recorded as a "Balance Adjustment" (while watching, an icon appears in the notification area and results are shown as Windows notifications. Right-click it to stop. The watcher and icon go away when you quit the game).',
+  '<b>この PC の取り込みプログラムを使う</b>（「ログを取り込む」でフォルダを選ばずに取り込みます。exe を入れた PC だけで有効にしてください）':
+    '<b>Use the importer on this PC</b> ("Import Logs" imports without picking a folder. Enable this only on a PC with the exe installed.)',
+};
+
+const re = [
+  // 曜日・日付・期間
+  [/^\((日|月|火|水|木|金|土)\)$/, (m, d) => '(' + WD[d] + ')'],
+  [/^(\d+)\/(\d+)\((日|月|火|水|木|金|土)\)〜(\d+)\/(\d+)\((日|月|火|水|木|金|土)\)$/, (m, a, b, c, d, e, f) => `${a}/${b} (${WD[c]}) – ${d}/${e} (${WD[f]})`],
+  [/^(\d+)年(\d+)月$/, (m, y, mo) => MON[+mo] + ' ' + y],
+  [/^(\d+)月$/, (m, mo) => MON[+mo]],
+  [/^第(\d+)期$/, 'Period $1'],
+  [/^第(\d+)期（最新）$/, 'Period $1 (latest)'],
+  [/^第(\d+)期 (\S+)〜(\S*?)(（最新）)?$/, (m, n, a, b, l) => `Period ${n} ${a}–${b}${l ? ' (latest)' : ''}`],
+  [/^第(\d+)期の収支$/, 'Period $1 net'],
+  [/^(.+)の収支$/, (m, a) => T(a) + ' net'],
+  [/^更新日時 (.+)$/, 'Updated $1'],
+  [/^現在の所持金・(.+)$/, (m, a) => 'Current balance · ' + T(a)],
+  [/^合計・(.+)$/, (m, a) => 'Total · ' + T(a)],
+  [/^(.+)の開始時の所持金 \(aUEC\)$/, (m, a) => 'Balance at the start of ' + T(a) + ' (aUEC)'],
+  [/^指定した期間$/, 'Selected period'],
+  [/^（(.+)）$/, (m, a) => ' (' + T(a) + ')'],
+  [/^(.+) ([\d,]+) \/ ([\d,]+)$/, (m, a, b, c) => T(a) + ` ${b} / ${c}`],
+  [/^実績・(.+) ([\d,]+)\/([\d,]+)$/, 'Achievements $2/$3'],
+  [/^実績 ([\d,]+)\/([\d,]+)$/, 'Achievements $1/$2'],
+  [/^([\d.]+) 達成$/, 'Achieved $1'],
+  [/^終了時 (.+)$/, 'End $1'],
+  [/^([\d,]+)件$/, '$1 records'],
+  [/^([\d,]+)(日|週|か月)$/, (m, n, u) => n + ' ' + (n === '1' ? UNITN[u].replace(/s$/, '') : UNITN[u])],
+  [/^記録のある(日|週|月)$/, (m, u) => UNITN[u === '月' ? 'か月' : u].replace(/^./, c => c.toUpperCase()) + ' with records'],
+  [/^1(日|週|か月)あたりの差引$/, (m, u) => 'Net per ' + (u === 'か月' ? 'month' : UNIT1[u])],
+  [/^いちばん稼いだ(日|週|月)$/, (m, u) => 'Best ' + UNIT1[u]],
+  [/^いちばん稼いだ(日|週|月)（(.+)）$/, (m, u, v) => `Best ${UNIT1[u]} (${v})`],
+  [/^(日|週|月)ごとの収入と支出$/, (m, u) => (u === '日' ? 'Daily' : u === '週' ? 'Weekly' : 'Monthly') + ' income and expenses'],
+  [/^(\S+)\s+収入 (\S+) \/ 支出 (\S+) \/ 差引 (\S+)$/, (m, d, a, b, c) => `${T(d)}  Income ${a} / Expenses ${b} / Net ${c}`],
+  [/^ゲームデータ (\S+)（ミッション ([\d,]+)件・船 ([\d,]+)隻）$/, 'Game data $1 ($2 missions, $3 ships)'],
+  [/^基本報酬 (.+)$/, 'Base reward $1'],
+  // 実績の説明
+  [/^(.+)・(デビュー|見習い|ベテラン|達人)$/, (m, a, b) => T(a) + ': ' + TIER[b]],
+  [/^記録 ([\d,]+)件$/, 'Add $1 records'],
+  [/^記録した日が ([\d,]+)日$/, 'Record on $1 days'],
+  [/^([\d,]+)日続けて記録する$/, 'Record $1 days in a row'],
+  [/^所持金 (\S+) aUEC に到達$/, (m, v) => `Reach a balance of ${man(v)} aUEC`],
+  [/^1日で (\S+) aUEC 稼ぐ$/, (m, v) => `Earn ${man(v)} aUEC in one day`],
+  [/^1週間（月〜日）で (\S+) aUEC 稼ぐ$/, (m, v) => `Earn ${man(v)} aUEC in one week (Mon–Sun)`],
+  [/^1か月で (\S+) aUEC 稼ぐ$/, (m, v) => `Earn ${man(v)} aUEC in one month`],
+  [/^収入の合計が (\S+) aUEC$/, (m, v) => `Total income reaches ${man(v)} aUEC`],
+  [/^(週|月|収入)([\d,.]+(?:万|億))$/, (m, k, v) => ({'週':'Weekly ', '月':'Monthly ', '収入':'Income '})[k] + man(v)],
+  [/^(.+)で ([\d,]+)回 稼ぐ$/, (m, a, v) => `Earn from ${T(a)} ` + (v === '1' ? 'once' : `${v} times`)],
+  [/^([\d,]+)種類の品目を売る$/, 'Sell $1 kinds of commodities'],
+  [/^([\d,]+)か所の店で売り買いする$/, 'Trade at $1 different shops'],
+  [/^1回で (\S+) aUEC 以上の船・装備を買う$/, (m, v) => `Buy ships or gear worth ${man(v)} aUEC or more at once`],
+  [/^船・装備の買い物の合計が (\S+) aUEC$/, (m, v) => `Spend ${man(v)} aUEC in total on ships and gear`],
+  [/^10万 aUEC 以上の買い物 ([\d,]+)回$/, 'Make $1 purchases of 100K aUEC or more'],
+  [/^([\d,]+)種類の船を手に入れる$/, 'Own $1 different ships'],
+  [/^(.+) を手に入れる$/, 'Get a $1'],
+  [/^船のレンタル ([\d,]+)回$/, 'Rent ships $1 times'],
+  [/^修理・補給 ([\d,]+)回$/, 'Repair or resupply $1 times'],
+  [/^Wikelo と ([\d,]+)回 交換する$/, 'Trade with Wikelo $1 times'],
+  [/^Quantainium を ([\d,]+)回 納品する$/, 'Deliver Quantainium $1 times'],
+  [/^Polaris Bit を合計 ([\d,]+)個 手に入れる$/, 'Collect $1 Polaris Bits in total'],
+  [/^メンバー間の送金 ([\d,]+)回$/, 'Make $1 member transfers'],
+  [/^スクリーンショットで所持金を ([\d,]+)回 合わせる$/, 'Match your balance from a screenshot $1 times'],
+  [/^土日に記録した日が ([\d,]+)日$/, 'Record on $1 weekend days'],
+  [/^実績解除: (.+)（(.+)）$/, (m, a, b) => `Achievement unlocked: ${T(a)} (${T(b)})`],
+  [/^ほかに ([\d,]+)件の実績を解除しました$/, 'Unlocked $1 more achievements'],
+  // メモ（記録の中身は日本語のまま、表示だけ英語に）
+  [/^貨物売却: (.*)$/, (m, a) => 'Cargo sale: ' + paren(a)],
+  [/^貨物購入: (.*)$/, (m, a) => 'Cargo purchase: ' + paren(a)],
+  [/^購入: (.*)$/, (m, a) => 'Purchase: ' + paren(a)],
+  [/^売却: (.*)$/, (m, a) => 'Sale: ' + paren(a)],
+  [/^レンタル: (.*)$/, (m, a) => 'Rental: ' + paren(a)],
+  [/^契約の費用: (.*)$/, (m, a) => 'Contract fee: ' + a],
+  [/^送金の受け取り: (.*)$/, 'Transfer received: $1'],
+  [/^メンバー間の送金: (.*)$/, 'Member transfer: $1'],
+  [/^(.+)（報酬(\d+)件）$/, (m, a, n) => paren(a) + ` (${n} rewards)`],
+  // 通知など
+  [/^(.+) が (.+) (\S+) を追加しました$/, (m, a, b, c) => `${T(a)} added ${T(b)} ${c}`],
+  [/^(.+) (\S+) を記録しました$/, (m, a, b) => `Recorded ${T(a)} ${b}`],
+  [/^([\d,]+)件を取り込みました$/, 'Imported $1 records'],
+  [/^([\d,]+)件を取り込みました。所持金がゲーム内とずれている場合は「実際の所持金に合わせる」で補正してください。$/, 'Imported $1 records. If your balance differs from the game, fix it with "Match actual balance".'],
+  [/^取り込み中… ([\d,]+)\/([\d,]+)(件（このままお待ちください）)?$/, (m, a, b, w) => `Importing… ${a}/${b}` + (w ? ' (please wait)' : '')],
+  [/^読み込み中… ([\d,]+)\/([\d,]+)　(.+)$/, 'Reading… $1/$2  $3'],
+  [/^(.+) を読めませんでした$/, 'Could not read $1'],
+  [/^([\d,]+)個のファイルから ([\d,]+)件 見つかりました(（うち ([\d,]+)件は取り込み済み）)?(。種別は必要に応じて変えられます。)?$/,
+    (m, f, n, x, d, y) => `Found ${n} records in ${f} files` + (x ? ` (${d} already imported)` : '') + (y ? '. You can change the types as needed.' : '')],
+  [/^([\d,]+)個のファイルを読みましたが、取り込める記録は見つかりませんでした。(.*)$/, (m, f, rest) => `Read ${f} files but found nothing to import.` + (rest ? ' Game.log only covers your last session; older ones are in logbackups ("Choose the LIVE folder" reads them all).' : '')],
+  [/^選択中 ([\d,]+)件　合計$/, 'Selected $1  Total'],
+  [/^([\d,]+)件の記録をバックアップに保存しました$/, 'Saved $1 records to a backup'],
+  [/^([\d,]+)件の記録を復元しました$/, 'Restored $1 records'],
+  [/^([\d,]+)件の記録を削除しました$/, 'Deleted $1 records'],
+  [/^CSVをコピーしました（([\d,]+)件）$/, 'Copied CSV ($1 records)'],
+  [/^の記録をすべて削除します。(.*)$/, (m, rest) => ' records will all be deleted.' + (rest.includes('共有') ? ' They will also disappear for the people you share with.' : '') + ' This cannot be undone, so copy the CSV first if you need it. The starting balance setting is kept.'],
+  [/^(.+) のゲーム内最安値 (\S+) aUEC を入れました（UEX調べ）$/, 'Filled in the lowest in-game price of $1: $2 aUEC (via UEX)'],
+  [/^差額 (\S+) を補正として記録しました$/, 'Recorded the difference $1 as an adjustment'],
+  [/^(.*)開始時の所持金を (\S+) aUEC にしました$/, (m, a, v) => `Set the starting balance${a ? ' of ' + a.replace(/ ?の$/, '') : ''} to ${v} aUEC`],
+  [/^アプリ上の所持金(（(.+)）)?: (\S+) aUEC$/, (m, x, p, v) => `Balance in the app${p ? ' (' + T(p) + ')' : ''}: ${v} aUEC`],
+  [/^(.+) の残高補正$/, 'Balance adjustment for $1'],
+  [/^「(.+)」を一覧から外しました$/, 'Removed "$1" from the list'],
+  [/^新しい版 v(\S+) があります。押すと更新します$/, 'Version $1 is available. Click to update.'],
+  [/^記録を読み込めませんでした（(.+)）。ページを再読み込みしてください。$/, 'Could not load records ($1). Please reload the page.'],
+  [/^保存できませんでした（(.+)）$/, 'Could not save ($1)'],
+  [/^削除できませんでした（(.+)）$/, 'Could not delete ($1)'],
+  [/^途中で止まりました（(.+)）。もう一度「選んだ記録を取り込む」を押すと、残りから続けます。$/, 'Stopped partway ($1). Press "Import selected" again to continue with the rest.'],
+];
+
+const words = [
+  ...Object.entries(TYPE).sort((a, b) => b[0].length - a[0].length),
+  [' ・ ', ' · '], ['・', ' · '], ['（', ' ('], ['）', ')'], ['、', ', '], ['〜', '–'], ['：', ': '],
+];
+Object.assign(exact, TYPE, {
+  // 単独で出る短い通知
+  '削除しました':'Deleted', '本当に削除':'Really delete', '金額を入力してください':'Enter an amount', '数値で入力してください':'Enter a number',
+  'メモに交換したもの（Polaris、Polaris Bit 15 など）を書いてください':'Write what you traded in the memo (Polaris, Polaris Bit 15, etc.)',
+  'ゲーム内の現在額を入力してください':'Enter the current in-game amount', '記録と一致しています':'Matches your records', '削除する記録はありません':'There are no records to delete',
+  'コピーできませんでした':'Could not copy', 'アイコンを設定しました':'Avatar set', 'アイコンを外しました':'Avatar removed', '保存しています…':'Saving…',
+  '画像を貼り付けるか、画像ファイルを選んでください。':'Paste an image or choose an image file.',
+  'クリップボードに画像がありません。Discord などでアイコンを右クリック →「画像をコピー」してから貼り付けてください。':'No image on the clipboard. Right-click your avatar in Discord etc. → "Copy image", then paste.',
+  'ファイルを探しています…':'Looking for files…', '場所をコピーしました':'Path copied', '選択したのでコピーしてください':'Selected. Please copy it.',
+  '新しい記録はありませんでした（すべて取り込み済みです）。':'No new records (everything is already imported).',
+  'ログファイルが見つかりませんでした。logbackups フォルダか Game.log を落としてください。':'No log files found. Drop the logbackups folder or Game.log.',
+  'このフォルダには Game.log も logbackups もありませんでした。StarCitizen の中の LIVE フォルダを選んでください。':'This folder has neither Game.log nor logbackups. Choose the LIVE folder inside StarCitizen.',
+  'バックアップのファイルを読めませんでした':'Could not read the backup file', '対象の人がいません。先に名前を決めてください':'No member selected. Set a name first.',
+  'ゲーム内の所持金を数字で入れてください（例: 2498287 / 2.5m）':'Enter your in-game balance as a number (e.g. 2498287 / 2.5m)',
+});
+window.I18N_EN = {exact, html, re, words};
+})();
+
+</script>
+<script>
+/* 'solo' = 個人用, 'shared' = claude.ai で共有, 'web' = GitHub Pages + Firebase で共有（web_backend.js） */
+const MODE = 'solo';
+/* 変更して公開するたびに上げる（表示はフッター） */
+const APP_VERSION = '3.20.0';
+const APP_UPDATED = '2026-10-06 08:11';   // 日本時間
+const SHARED = MODE !== 'solo';
+/* 一般公開版（make_public.py で作る。このブラウザ内に保存、手入力欄とバックアップを出す） */
+const PUBLIC = true;
+
+/* ---------- 言語（日本語 / English） ----------
+   画面に出る文字を、表示の直前に辞書（I18N_EN、下の別の script）で置き換える。
+   記録の中身やプログラムが使う日本語（メモの書式・ログの読み取りなど）は変えない。英語を選んだときだけ動く */
+const LANG_KEY = 'auec-ledger-lang';
+let LANG = 'ja';
+try{ const v = localStorage.getItem(LANG_KEY); LANG = (v === 'en' || v === 'ja') ? v : ((navigator.language || '').toLowerCase().startsWith('ja') ? 'ja' : 'en'); }catch(e){}
+document.documentElement.lang = LANG;
+const JA_RE = /[\u3040-\u30ff\u3400-\u9fff\uff01-\uff60]/;
+const trCache = new Map(), trOut = new Set();   // trOut: 訳した結果（もう一度訳さない。日本語が残っても繰り返し書き換えないため）
+function tr(s){
+  if(LANG !== 'en' || !s || !JA_RE.test(s) || trOut.has(s)) return s;
+  if(trCache.has(s)) return trCache.get(s);
+  const D = window.I18N_EN || {exact:{}, re:[], words:[]};
+  const m = s.match(/^(\s*)([\s\S]*?)(\s*)$/), key = m[2].replace(/\s+/g, ' ');
+  let out = D.exact[key];
+  if(out === undefined){
+    for(const [re, rp] of D.re){ if(re.test(key)){ out = key.replace(re, rp); break; } }
+  }
+  if(out === undefined){ out = key; for(const [a, b] of D.words) out = out.split(a).join(b); }   // 部分的にでも訳す（種別名など）
+  out = typeof out === 'string' && JA_RE.test(out) && D.exact[out] !== undefined ? D.exact[out] : out;
+  const r = m[1] + out + m[3];
+  if(trCache.size < 5000){ trCache.set(s, r); trOut.add(r); }
+  return r;
+}
+const TR_ATTRS = ['title', 'aria-label', 'placeholder', 'alt'];
+function trTree(root){
+  if(LANG !== 'en' || !root) return;
+  if(root.nodeType === 3){ if(!root.parentElement?.closest('[data-noi18n],script,style,textarea')){ const t = tr(root.nodeValue); if(t !== root.nodeValue) root.nodeValue = t; } return; }
+  if(root.nodeType !== 1 || root.closest('[data-noi18n],script,style')) return;
+  const els = [root, ...root.querySelectorAll('*')];
+  for(const el of els){
+    if(el.closest('[data-noi18n]')) continue;
+    for(const a of TR_ATTRS){ const v = el.getAttribute(a); if(v && JA_RE.test(v)){ const t = tr(v); if(t !== v) el.setAttribute(a, t); } }
+    // 文の途中に太字などがある段落は、まとまり（innerHTML）ごと訳す
+    const H = window.I18N_EN && window.I18N_EN.html;
+    if(H && el.children.length && JA_RE.test(el.textContent)){
+      const k = el.innerHTML.replace(/\s+/g, ' ').trim();
+      if(H[k] !== undefined){ el.innerHTML = H[k]; continue; }
+    }
+  }
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  for(let n = w.nextNode(); n; n = w.nextNode()){
+    if(!JA_RE.test(n.nodeValue) || n.parentElement?.closest('[data-noi18n],script,style,textarea')) continue;
+    const t = tr(n.nodeValue); if(t !== n.nodeValue) n.nodeValue = t;
+  }
+}
+if(LANG === 'en'){
+  trTree(document.body);
+  document.title = tr(document.title);
+  new MutationObserver(ms => {
+    for(const m of ms){
+      if(m.type === 'childList') m.addedNodes.forEach(trTree);
+      else if(m.type === 'characterData') trTree(m.target);
+      else if(m.type === 'attributes'){ const v = m.target.getAttribute(m.attributeName); if(v && JA_RE.test(v)){ const t = tr(v); if(t !== v) m.target.setAttribute(m.attributeName, t); } }
+    }
+  }).observe(document.body, {childList:true, subtree:true, characterData:true, attributes:true, attributeFilter:TR_ATTRS});
+}
+
+
+const TYPES = [
+  {id:'delivery', label:'配達', dir:1},
+  {id:'hauling',  label:'貨物輸送', dir:1},
+  {id:'salvage',  label:'サルベージ', dir:1},
+  {id:'mining',   label:'採掘', dir:1},
+  {id:'bounty',   label:'賞金首', dir:1},
+  {id:'combat',   label:'傭兵・戦闘', dir:1},
+  {id:'recovery', label:'調査・回収', dir:1},
+  {id:'trade',    label:'交易', dir:1},
+  {id:'other_in', label:'その他収入', dir:1},
+  {id:'wikelo',   label:'Wikelo との交換', dir:1},   // 品物と交換（金額 0 で記録してよい）。メモに Polaris / Idris / Polaris Bit 15 / Quantainium など
+  {id:'repair',   label:'修理・補給', dir:-1},
+  {id:'purchase', label:'船・装備購入', dir:-1},
+  {id:'fine',     label:'罰金・保険', dir:-1},
+  {id:'other_out',label:'その他支出', dir:-1},
+];
+const ADJ = {id:'adjust', label:'残高補正', dir:0};
+const XFER = {id:'transfer', label:'メンバー間の送金', dir:0};
+const typeOf = id => TYPES.find(t=>t.id===id) || (id==='adjust'?ADJ:id==='transfer'?XFER:{id, label:id, dir:1});
+/* 記録の種類ごとのアイコン（24×24 の線画） */
+const ICONS = {
+  delivery: '<path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/>',
+  hauling:  '<path d="M2 7h12v9H2zM14 10h4l3 3v3h-7"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>',
+  salvage:  '<path d="M6 3v8a6 6 0 0 0 12 0V3"/><path d="M6 7h4M14 7h4"/>',
+  mining:   '<path d="M6 3h12l3 6-9 12L3 9z"/><path d="M3 9h18M9 3l3 6 3-6"/>',
+  bounty:   '<circle cx="12" cy="12" r="8"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/>',
+  combat:   '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>',
+  recovery: '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>',
+  trade:    '<path d="M4 8h15l-3-3M20 16H5l3 3"/>',
+  other_in: '<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
+  wikelo:   '<path d="M3 9h18v4H3zM5 13v8h14v-8M12 9v12"/><path d="M12 9c-1.5-4-6-4-6-1.5S10 9 12 9zm0 0c1.5-4 6-4 6-1.5S14 9 12 9z"/>',
+  repair:   '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/>',
+  purchase: '<path d="M12 2l4 10-4 3-4-3z"/><path d="M8 12l-3 5h4M16 12l3 5h-4M10 20h4"/>',
+  fine:     '<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/>',
+  other_out:'<circle cx="12" cy="12" r="9"/><path d="M8 12h8"/>',
+  adjust:   '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
+  transfer: '<path d="M3 12h18M17 8l4 4-4 4M7 8l-4 4 4 4"/>',
+};
+const icon = id => ICONS[id] ? `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[id]}</svg>` : '';
+
+/* 所持金のメーター表示。前に出した額（key ごと）から新しい額まで、数字の帯を回す */
+const odoPrev = new Map();
+function odo(key, value){
+  const prev = odoPrev.has(key) ? odoPrev.get(key) : value;
+  odoPrev.set(key, value);
+  const to = fmt(value);
+  // 額が変わらないときは普通の文字（回す帯は止まると桁ごとに高さが1px未満ずれて、数字がガタガタに見えるため）
+  if(prev === value) return `<span class="odo-done">${to}</span>`;
+  const from = fmt(prev).padStart(to.length, ' ').slice(-to.length);
+  const digits = '0123456789'.split('').map(d=>`<span>${d}</span>`).join('');
+  return `<span class="odo"><span class="sr-only">${to}</span><span aria-hidden="true" class="odo">` + [...to].map((ch, i)=>
+    /\d/.test(ch) ? `<span class="odo-d"><span class="odo-col" style="transform:translateY(-${(/\d/.test(from[i]) ? +from[i] : 0)*10}%)" data-to="${ch}">${digits}</span></span>` : `<span class="odo-d">${ch}</span>`   // カンマも数字と同じ高さの枠に入れて、並びの高さを揃える
+  ).join('') + '</span></span>';
+}
+let odoTurn = 0;
+function odoRun(){
+  const turn = ++odoTurn;
+  // 表示した直後は前の額のまま。次の描画で新しい額へ回し始める
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    for(const c of document.querySelectorAll('.odo-col[data-to]')){ c.style.transform = `translateY(-${c.dataset.to*10}%)`; c.removeAttribute('data-to'); }
+  }));
+  // 回り終わったら普通の文字に置き換える（そのあいだに次の描画があれば、そちらに任せる）
+  setTimeout(()=>{
+    if(turn !== odoTurn) return;
+    for(const t of document.querySelectorAll('span.odo > .sr-only')) t.parentElement.outerHTML = `<span class="odo-done">${t.textContent}</span>`;
+  }, 1150);
+}
+
+/* 収入・支出の集計に入れない記録（残高補正、メンバー間の送金） */
+const isInternal = e => e.type==='adjust' || e.type==='transfer';
+const $ = id => document.getElementById(id);
+const fmt = n => Math.round(n).toLocaleString('ja-JP');
+const sfmt = n => (n>0?'+':n<0?'−':'±') + fmt(Math.abs(n));
+const cls = n => n>0?'pos':n<0?'neg':'';
+const today = () => new Date().toLocaleDateString('sv-SE');
+const dayNum = s => { const [y,m,d]=s.split('-').map(Number); return Date.UTC(y,m-1,d)/864e5; };
+const WD = ['日','月','火','水','木','金','土'];
+const wday = s => WD[new Date(dayNum(s)*864e5).getUTCDay()];
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function parseAmount(s){
+  s = String(s||'').trim().toLowerCase().replace(/[,\s_]/g,'').replace(/auec$/,'');
+  const m = s.match(/^(-?\d+(?:\.\d+)?)([km]?)$/);
+  if(!m) return NaN;
+  return Math.round(parseFloat(m[1]) * (m[2]==='k'?1e3:m[2]==='m'?1e6:1));
+}
+
+/* ---------- state ---------- */
+let entries = [], settings = {startBalance:0};
+/* 帳簿の設定ドキュメント全体（開始額・人ごとの開始額・ゲーム内の名前）。一部だけ書くと他が消えるので必ずこれで書く */
+const sdoc = (o={}) => ({startBalance:settings.startBalance||0, starts:settings.starts||{}, handles:settings.handles||{}, avatars:settings.avatars||{}, ...o});
+let selType = 'delivery', dir = 1;
+/* 日別の収支のまとめ方: day（日別）/ week（週別・月曜〜日曜）/ month（月別）。このブラウザで覚える */
+const UNITS = {day:{label:'日別', one:'日', cnt:'日'}, week:{label:'週別', one:'週', cnt:'週'}, month:{label:'月別', one:'月', cnt:'か月'}};
+let unit = 'day';
+try{ const u = localStorage.getItem('auec-ledger-unit'); if(UNITS[u]) unit = u; }catch(e){}
+let picked = null;            // 選んだミッション
+let SC = {missions:[], ships:[]};
+let me = null, names = {}, userApi = null, readOnly = false;
+
+/* ---------- storage: db when available, else this browser ---------- */
+const LS_KEY = SHARED ? 'auec-ledger-shared-v1' : 'auec-ledger-v1';
+const store = {
+  db:null,
+  loadLocal(){
+    try{ const j = JSON.parse(localStorage.getItem(LS_KEY)||'{}'); entries = j.entries||[]; settings = j.settings||{startBalance:0}; }catch(e){}
+  },
+  saveLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify({entries, settings})); }catch(e){} },
+  async add(e){
+    if(this.db){ await this.db.collection('entries').add(e); return; }
+    entries.push({...e, id:'l'+Date.now()+Math.random().toString(36).slice(2,6)}); this.saveLocal(); render();
+  },
+  async remove(id){
+    if(this.db){ await this.db.doc('entries/'+id).delete(); return; }
+    entries = entries.filter(x=>x.id!==id); this.saveLocal(); render();
+  },
+  // まとめて追加（ログ取り込み用）。docId を固定するので再試行しても二重にならない
+  async addMany(list, onProgress){
+    if(this.db){
+      let i = 0, next = 0;
+      const one = async ({id, ...e}) => {
+        for(let t = 0; ; t++){
+          try{ await this.db.collection('entries').doc(id).set(e); return; }
+          catch(err){
+            if(t < 6 && ['resource_exhausted','unavailable'].includes(err && err.code)){ await new Promise(r=>setTimeout(r, 1500*(t+1) + Math.random()*800)); continue; }
+            throw err;
+          }
+        }
+      };
+      const worker = async () => { while(next < list.length){ await one(list[next++]); onProgress && onProgress(++i); } };
+      await Promise.all([worker(), worker(), worker(), worker()]);
+      return;
+    }
+    for(const e of list) if(!entries.some(x=>x.id===e.id)) entries.push(e);
+    this.saveLocal(); render(); onProgress && onProgress(list.length);
+  },
+  async clearAll(){
+    if(this.db){ for(const e of [...entries]) await this.db.doc('entries/'+e.id).delete(); return; }
+    entries = []; this.saveLocal(); render();
+  },
+  async setStart(v){
+    if(this.db){ await this.db.doc('settings/main').set(sdoc({startBalance:v})); return; }
+    settings = {...settings, startBalance:v}; this.saveLocal(); render();
+  },
+  // 記録のない人を一覧から外す（開始額の登録を消す）
+  async dropPerson(k){
+    const starts = {...(settings.starts||{})};
+    for(const key of Object.keys(starts)) if(splitKey(key)[0] === k) delete starts[key];
+    const handles = {...(settings.handles||{})}; delete handles[k];
+    const avatars = {...(settings.avatars||{})}; delete avatars[k];
+    if(this.db){ await this.db.doc('settings/main').set(sdoc({starts, handles, avatars})); return; }
+    settings = {...settings, starts, handles, avatars}; this.saveLocal(); render();
+  },
+  // 以前の共通の開始額を、指定した人の開始額に足して 0 にする（合計は変わらない）
+  async moveLegacy(k){
+    const starts = {...(settings.starts||{}), [k]:(Number((settings.starts||{})[k])||0) + (settings.startBalance||0)};
+    if(this.db){ await this.db.doc('settings/main').set(sdoc({startBalance:0, starts})); return; }
+    settings = {...settings, startBalance:0, starts}; this.saveLocal(); render();
+  },
+  // 共有モード: 人ごとの開始時の所持金（キーは記録者 by と同じ）
+  async setPersonStart(k, v){
+    const starts = {...(settings.starts||{}), [k]:v};
+    if(this.db){ await this.db.doc('settings/main').set(sdoc({starts})); return; }
+    settings = {...settings, starts}; this.saveLocal(); render();
+  },
+  // メンバーのゲーム内の名前（送金の送り主の判定に使う）。空なら登録を消す
+  // メンバーのアイコン（96px に縮めた画像の data URL）。空なら外す
+  async setAvatar(k, url){
+    const avatars = {...(settings.avatars||{})};
+    if(url) avatars[k] = url; else delete avatars[k];
+    if(this.db){ await this.db.doc('settings/main').set(sdoc({avatars})); return; }
+    settings = {...settings, avatars}; this.saveLocal(); render();
+  },
+  async setHandle(k, h){
+    const handles = {...(settings.handles||{})};
+    if(h) handles[k] = h; else delete handles[k];
+    if(this.db){ await this.db.doc('settings/main').set(sdoc({handles})); return; }
+    settings = {...settings, handles}; this.saveLocal(); render();
+  },
+};
+
+async function initStore(){
+  if(MODE==='web') return initWeb();
+  store.loadLocal(); render();
+  const use = n => { try{ return window.claude?.use ? window.claude.use(n) : Promise.resolve(null); }catch(e){ return Promise.resolve(null); } };
+  const db = await use('db').catch(()=>null);
+  if(!db){
+    $('storeNote').innerHTML = '保存先: <b>このブラウザ内</b>（CSVで控えを取ってください）';
+    return;
+  }
+  store.db = db;
+  $('storeNote').innerHTML = SHARED ? '保存先: <b>共有クラウド</b>（全員の追加がすぐ反映）' : '保存先: <b>クラウド</b>（どの端末からでも同じ記録）';
+  entries = []; render();
+  db.collection('entries').onSnapshot(snap=>{
+    const before = new Set(entries.map(e=>e.id));
+    entries = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    if(SHARED && before.size){
+      for(const c of snap.docChanges()) if(c.type==='added' && !before.has(c.doc.id)){
+        const e = c.doc.data(); if(e.by && e.by!==me) toast(`${nameOf(e.by)} が ${typeOf(e.type).label} ${sfmt(e.amount)} を追加しました`);
+      }
+    }
+    resolveNames(entries.map(e=>e.by)).then(render);
+    render();
+  }, err=>{ toast('記録を読み込めませんでした（'+err.code+'）。ページを再読み込みしてください。'); });
+  db.doc('settings/main').onSnapshot(s=>{
+    settings = s.exists ? {startBalance:Number(s.data().startBalance)||0, starts:s.data().starts||{}, handles:s.data().handles||{}, avatars:s.data().avatars||{}} : {startBalance:0, starts:{}, handles:{}, avatars:{}};
+    render();
+  }, ()=>{});
+
+  if(SHARED) initPeople(use);
+}
+
+/* ---------- shared mode: who am I, who is online ---------- */
+async function initPeople(use){
+  userApi = await use('user').catch(()=>null);
+  if(userApi){
+    try{ me = await userApi.id(); }catch(e){}
+    try{ if(await userApi.can('data.write') === false){ readOnly = true; applyReadOnly(); } }catch(e){}
+    if(me) await resolveNames([me]);
+    render();
+  }
+  const room = await use('room').catch(()=>null);
+  if(!room) return;
+  $('peers').hidden = false;
+  let lastPeers = [];
+  const draw = async peers => {
+    lastPeers = peers;
+    const ids = [...new Set(peers.filter(p=>p.kind==='viewer' && p.by).map(p=>p.by))];
+    await resolveNames(ids);
+    $('peers').innerHTML = ids.length ? '<span>接続中</span>' + ids.map(id=>peerChip(id)).join('') : '';
+  };
+  window.redrawPeers = () => draw(lastPeers);
+  room.onPeers(ch=>draw(ch.peers), ()=>{ $('peers').hidden = true; });
+  room.presence({here:true}).catch(()=>{});
+  draw(room.peers());
+}
+async function resolveNames(ids){
+  ids = [...new Set(ids.filter(id=>id && !(id in names)))];
+  if(!ids.length || !userApi) return;
+  try{ const ps = await userApi.profiles(ids); for(const id of ids) names[id] = ps[id]?.name || ''; }catch(e){}
+}
+const nameOf = id => MODE==='web' ? (id||'不明') : !id ? '不明' : (names[id] || (id===me ? 'あなた' : 'メンバー'));
+const PCOL = ['var(--p1)','var(--p2)','var(--p3)'];
+function colorOf(id){
+  const i = people().indexOf(id); return PCOL[(i<0?0:i)%PCOL.length];
+}
+/* ---------- 共有モード: 人ごとの所持金 ----------
+   その人の所持金 = その人の開始時の所持金 + その人（by）の記録の合計。共有の所持金はその合計。
+   記録者のない記録と、以前の共通の開始額は「未割り当て」として合計にだけ入れる */
+function people(){
+  const s = new Set(entries.map(e=>e.by).filter(Boolean));
+  for(const k of Object.keys(settings.starts||{})){ const p = splitKey(k)[0]; if(p) s.add(p); }
+  if(me) s.add(me);
+  return [...s].sort();
+}
+/* ---------- 所持金を計算する範囲（ワイプ対応） ----------
+   自動の期（第N期・最新）を選んでいるときは、その期の中だけで所持金を計算する（期の開始額 + 期の記録）。
+   全期間・日付指定のときは通算。期ごとの開始額は starts に「名前@その期の日付」で持つ（個人用は名前が空）。 */
+function splitKey(k){ const i = k.lastIndexOf('@'); return i < 0 ? [k, ''] : [k.slice(0, i), k.slice(i + 1)]; }
+function balScope(){ return (period.kind === 'latest' || period.kind === 'auto') ? periodRange() : null; }
+function inScope(sc, d){ return !sc || ((!sc.from || d >= sc.from) && (!sc.to || d <= sc.to)); }
+function scopeName(){
+  if(!balScope()) return '';
+  return '第' + (period.kind === 'latest' ? periods.length : period.i + 1) + '期';
+}
+/* 最初の期か（期の指定がない開始額＝記録開始時の所持金は、最初の期の開始額として使う） */
+function isFirstScope(sc){ return !!sc && periods.length > 0 && sc.from === periods[0].from; }
+/* その範囲の開始額 {名前: 額}。期の中の日付が付いた登録を使う（複数あれば新しい日付のもの） */
+function startsFor(sc){
+  const out = {}, best = {}, undated = {};
+  for(const [k, v] of Object.entries(settings.starts||{})){
+    const [p, d] = splitKey(k);
+    if(!d){ undated[p] = (undated[p]||0) + (Number(v)||0); if(!sc) out[p] = undated[p]; continue; }
+    if(sc && inScope(sc, d) && (best[p] === undefined || d > best[p])){ best[p] = d; out[p] = Number(v)||0; }
+  }
+  if(isFirstScope(sc)) for(const p of Object.keys(undated)) if(best[p] === undefined) out[p] = undated[p];
+  return out;
+}
+/* 以前の共通の開始額（未割り当て）を含めるか: 通算か最初の期のとき */
+function legacyFor(sc){ return (!sc || isFirstScope(sc)) ? (settings.startBalance||0) : 0; }
+/* 開始額を保存するキー（期の中に既存の登録があればそれを上書き） */
+function startKey(p, sc){
+  if(!sc) return p;
+  // 最初の期で、期付きの登録がまだなければ、期の指定がない登録（記録開始時の所持金）をそのまま使う
+  if(isFirstScope(sc) && !Object.keys(settings.starts||{}).some(k=>{ const [q, d] = splitKey(k); return q === p && d && inScope(sc, d); }) && (p in (settings.starts||{}))) return p;
+  let found = '';
+  for(const k of Object.keys(settings.starts||{})){ const [q, d] = splitKey(k); if(q === p && d && inScope(sc, d) && d > found) found = d; }
+  return `${p}@${found || sc.from}`;
+}
+function totalStart(sc){
+  return legacyFor(sc) + Object.values(startsFor(sc)).reduce((a,b)=>a+b, 0);
+}
+function personBalances(sc){
+  const out = {}, st = startsFor(sc);
+  for(const p of people()) out[p] = st[p]||0;
+  let un = legacyFor(sc);
+  for(const e of entries){ if(!inScope(sc, e.date)) continue; if(e.by) out[e.by] = (out[e.by]||0) + e.amount; else un += e.amount; }
+  return {each:out, unassigned:un};
+}
+/* ---------- アイコン ----------
+   右上「接続中」の自分の名前（またはカードの自分のアイコン）をクリック → 貼り付け（Ctrl+V）か画像ファイルで登録。
+   96px に縮めて帳簿の設定（avatars）に保存するので相手の画面にも出る。未登録は頭文字の丸 */
+function avatarHtml(p, size){
+  const url = (settings.avatars||{})[p];
+  const cls = 'av' + (size === 'lg' ? ' avlg' : '');
+  if(url) return `<img class="${cls}" src="${esc(url)}" alt="">`;
+  const ch = (String(nameOf(p) || '?').trim()[0] || '?').toUpperCase();
+  return `<span class="${cls} avtxt" style="background:${colorOf(p)}">${esc(ch)}</span>`;
+}
+function peerChip(p){
+  const label = `${avatarHtml(p)}<span>${esc(nameOf(p))}${p===me?'（あなた）':''}</span>`;
+  return p === me
+    ? `<button type="button" class="peer peerme" data-avatar-me title="クリックでアイコンを設定">${label}</button>`
+    : `<span class="peer">${label}</span>`;
+}
+async function shrinkImage(blob){
+  const url = URL.createObjectURL(blob);
+  try{
+    const img = await new Promise((res, rej)=>{ const i = new Image(); i.onload = ()=>res(i); i.onerror = rej; i.src = url; });
+    const S = 96, c = document.createElement('canvas'); c.width = c.height = S;
+    const k = Math.max(S / img.width, S / img.height), w = img.width * k, h = img.height * k;
+    c.getContext('2d').drawImage(img, (S - w) / 2, (S - h) / 2, w, h);
+    let out = c.toDataURL('image/webp', 0.85);
+    if(!out.startsWith('data:image/webp')) out = c.toDataURL('image/jpeg', 0.85);
+    return out;
+  } finally { URL.revokeObjectURL(url); }
+}
+function openAvatarPop(){
+  if(!me || readOnly) return;
+  $('avPreview').innerHTML = avatarHtml(me, 'lg');
+  $('avRemove').hidden = !(settings.avatars||{})[me];
+  $('avMsg').textContent = '';
+  $('avatarPop').hidden = false;
+  $('avPick').focus();
+}
+const closeAvatarPop = () => { $('avatarPop').hidden = true; };
+async function saveAvatar(blob){
+  if(!blob || !/^image\//.test(blob.type)){ $('avMsg').textContent = '画像を貼り付けるか、画像ファイルを選んでください。'; return; }
+  $('avMsg').textContent = '保存しています…';
+  try{
+    const url = await shrinkImage(blob);
+    await store.setAvatar(me, url);
+    settings = {...settings, avatars:{...(settings.avatars||{}), [me]:url}};
+    render(); closeAvatarPop(); toast('アイコンを設定しました');
+  }catch(e){ $('avMsg').textContent = saveErr(e); }
+}
+document.addEventListener('click', ev=>{ if(ev.target.closest('[data-avatar-me]')) openAvatarPop(); });
+document.addEventListener('paste', ev=>{
+  if($('avatarPop').hidden) return;
+  const item = [...(ev.clipboardData||{}).items||[]].find(i=>i.type && i.type.startsWith('image/'));
+  if(item){ ev.preventDefault(); saveAvatar(item.getAsFile()); }
+  else $('avMsg').textContent = 'クリップボードに画像がありません。Discord などでアイコンを右クリック →「画像をコピー」してから貼り付けてください。';
+});
+document.addEventListener('keydown', ev=>{ if(ev.key === 'Escape' && !$('avatarPop').hidden) closeAvatarPop(); });
+
+/* 日ごとの終了時の所持金を人ごとに（グラフ用）。戻り値: {date: {person: 残高}} と開始値 */
+function personDaily(sc){
+  const st = startsFor(sc), run = {};
+  for(const p of people()) run[p] = st[p]||0;
+  const start = {...run}, byDate = {};
+  for(const e of sorted(entries.filter(e=>inScope(sc, e.date)))){
+    if(e.by){ run[e.by] = (run[e.by]||0) + e.amount; }
+    byDate[e.date] = {...run};
+  }
+  return {start, byDate};
+}
+function renderPeople(){
+  const bar = $('peopleBar');
+  if(!SHARED){ bar.hidden = true; return; }
+  const sc = balScope();
+  const {each, unassigned} = personBalances(sc);
+  const ps = people();
+  bar.hidden = !ps.length;
+  bar.innerHTML = ps.map(p=>`<div class="pcard" style="--pc:${colorOf(p)}">
+      ${p===me ? `<button type="button" class="pav" data-avatar-me title="クリックでアイコンを設定">${avatarHtml(p, 'lg')}</button>` : `<span class="pav">${avatarHtml(p, 'lg')}</span>`}
+      <span class="pname">${esc(nameOf(p))}${p===me?'<small>（あなた）</small>':''}${(settings.handles||{})[p] ? `<small class="phandle">ゲーム内: ${esc(settings.handles[p])}</small>` : ''}</span>
+      <span class="pbal num">${odo('p:' + p, each[p]||0)}<span class="u">aUEC</span></span>
+      ${readOnly ? '' : `<button type="button" class="padj" data-adj="${esc(p)}" title="ゲーム内の所持金に合わせる">残高補正</button>`}</div>`).join('')
+    + (unassigned ? `<div class="pcard" style="--pc:var(--line)"><span class="pname">未割り当て<small>（記録者なし${sc?'':'・共通の開始額'}）</small></span><span class="pbal num">${fmt(unassigned)}<span class="u">aUEC</span></span></div>` : '');
+  // 設定欄の「対象の人」
+  const sel = $('who'), cur = sel.value || me || ps[0] || '';
+  sel.innerHTML = ps.map(p=>`<option value="${esc(p)}"${p===cur?' selected':''}>${esc(nameOf(p))}${p===me?'（あなた）':''}</option>`).join('');
+  $('whoWrap').hidden = !ps.length;
+  // 一覧から外す（記録のない人のみ）
+  const target = sel.value, nEnt = entries.filter(e=>e.by===target).length;
+  $('personTools').hidden = !target;
+  $('dropRow').hidden = !target || nEnt > 0 || target === me;
+  $('dropMsg').textContent = `「${nameOf(target)}」には記録がありません。一覧から外せます（開始額の登録も消えます）。`;
+  const legacy = settings.startBalance||0;
+  $('legacyRow').hidden = !legacy || !ps.length;
+  $('legacyMsg').textContent = legacy ? `以前の共通の開始額 ${fmt(legacy)} aUEC が「未割り当て」になっています。上で選んだ人の開始額に移せます（合計は変わりません）。` : '';
+  if(document.activeElement!==$('startBal')){ const v = startsFor(sc)[sel.value]||0; $('startBal').value = v ? fmt(v) : ''; }
+}
+function applyReadOnly(){
+  $('roNote').hidden = false;
+  for(const el of document.querySelectorAll('#form input, #form button, .settings input, .settings button')) el.disabled = true;
+}
+
+/* ---------- game data (api.star-citizen.wiki の同梱スナップショット) ---------- */
+async function loadGameData(){
+  try{
+    const r = await fetch('sc-data.json'); if(!r.ok) throw 0;
+    SC = await r.json();
+    for(const m of SC.missions) m._q = (m.t+' '+(m.g||'')).toLowerCase();
+    $('shiplist').innerHTML = SC.ships.map(s=>`<option value="${esc(s.n)}">${esc(s.m)}${s.c?` ・ ${s.c} SCU`:''}</option>`).join('');
+    $('dataNote').textContent = `ゲームデータ ${String(SC.version||'').replace(/\.\d+$/,'')}（ミッション ${SC.missions.length}件・船 ${SC.ships.length}隻）`;
+  }catch(e){
+    $('dataNote').textContent = 'ミッション・船データを読み込めませんでした（手入力はできます）';
+  }
+}
+
+/* ---------- derived ---------- */
+function sorted(list){
+  return [...list].sort((a,b)=> a.date<b.date?-1:a.date>b.date?1:(a.createdAt||0)-(b.createdAt||0));
+}
+function compute(list, start){
+  const s = sorted(list); let bal = start; const days = new Map();
+  for(const e of s){
+    bal += e.amount;
+    let d = days.get(e.date);
+    if(!d){ d = {date:e.date, inc:0, out:0, items:[], end:0}; days.set(e.date,d); }
+    if(!isInternal(e)){ if(e.amount>=0) d.inc+=e.amount; else d.out+=e.amount; }
+    d.items.push({...e, after:bal}); d.end = bal;
+  }
+  return {balance:bal, days:[...days.values()]};
+}
+
+/* ---------- 遊び心: 新しく届いた記録の光、船のお祝い、今週の稼ぎ頭、実績、SCAN COMPLETE、隠しコマンド ---------- */
+let seenIds = null;
+const freshUntil = new Map();
+// ページを開いた後に届いた記録を見つける（開いた直後にまとめて届いた分は対象外）
+function trackFresh(){
+  const ids = entries.map(e=>e.id);
+  if(seenIds === null){
+    if(entries.length || performance.now() > 6000) seenIds = new Set(ids);
+    return;
+  }
+  const fresh = entries.filter(e=>!seenIds.has(e.id));
+  for(const e of fresh) seenIds.add(e.id);
+  if(!fresh.length || fresh.length > 40) return;
+  for(const e of fresh) freshUntil.set(e.id, Date.now() + 2400);
+  const got = fresh.map(shipBought).find(Boolean);
+  if(got) celebrateShip(got.ship, got.entry);
+}
+const normName = t => String(t||'').toLowerCase().replace(/[^a-z0-9]/g, '');
+// 10万 aUEC 以上の「船・装備購入」で、メモか船の欄にゲームデータの船名があれば、その船
+// レンタル（ログ由来は「レンタル: ARGO_MOLE（店）」）は買ったものではない
+const isRental = e => String(e.src||'').startsWith('log-rent-') || /^レンタル/.test(e.memo||'');
+function shipBought(e){
+  if(isRental(e)) return null;
+  if(!((e.type === 'purchase' && e.amount <= -100000) || e.type === 'wikelo')) return null;
+  const text = normName((e.memo||'') + ' ' + (e.ship||''));
+  let best = null;
+  for(const sh of SC.ships || []){
+    // 「MISC Prospector」のようにメーカー名が頭に付いた船名は、メーカー名なし（Prospector）でも一致させる
+    const names = [sh.n, sh.n.replace(/^(MISC|RSI|Drake|Aegis|Anvil|Origin|Crusader|Argo|Consolidated Outland|Esperia|Gatac|Mirai|Banu|Kruger|Tumbril|Greycat)\s+/i, '')];
+    for(const nm of names){ const n = normName(nm); if(n.length >= 4 && text.includes(n) && (!best || n.length > best.len)) best = {sh, len:n.length}; }
+  }
+  best = best && best.sh;
+  return best ? {ship:best, entry:e} : null;
+}
+function celebrateShip(sh, e){
+  const el = document.createElement('div');
+  el.className = 'celebrate';
+  el.innerHTML = `<div class="card" role="dialog" aria-label="船を手に入れました">
+      ${sh.img ? `<img src="${esc(sh.img)}" alt="" onerror="this.remove()">` : ''}
+      <div class="body"><span class="k">NEW SHIP ACQUIRED</span><span class="n">${esc(sh.n)}</span>
+        <span class="hint">${esc(sh.m || '')}${sh.r ? ' ・ ' + esc(sh.r) : ''}</span>
+        <span>${SHARED && e.by ? esc(nameOf(e.by)) + ' が' : ''}${e.type === 'wikelo' ? 'Wikelo との交換で' : fmt(-e.amount) + ' aUEC で'}手に入れました</span>
+        <div class="row" style="justify-content:flex-end;margin-top:6px"><button type="button" class="btn">おめでとう</button></div></div></div>`;
+  const close = ()=> el.remove();
+  el.addEventListener('click', ev=>{ if(ev.target === el || ev.target.closest('button')) close(); });
+  document.body.appendChild(el);
+  setTimeout(close, 15000);
+}
+function fxBanner(title, sub){
+  const b = document.createElement('div');
+  b.className = 'fxbanner';
+  b.setAttribute('role', 'status');
+  b.innerHTML = `<b>${esc(title)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}`;
+  document.body.appendChild(b);
+  setTimeout(()=>b.remove(), 2300);
+}
+// 実績。全期間の記録（共有口座全体）から、達成した日を求める。人同士を比べるものは入れない
+// 各実績は {id, cat, name, desc, m: 指標の名前, v: しきい値, shared: 共有の版だけ}
+const fmtM = v => v >= 1e8 ? (v/1e8) + '億' : v >= 1e4 ? (v/1e4).toLocaleString('en-US') + '万' : fmt(v);
+const ACHS = (()=>{
+  const A = [], add = (cat, id, name, desc, m, v, extra) => A.push({cat, id, name, desc, m, v, ...(extra||{})});
+  // 記録
+  [[1,'はじめの一歩'],[10,'書き始め'],[50,'記録係'],[100,'几帳面'],[250,'帳簿番'],[500,'記録魔'],[1000,'千の記録'],[2000,'航海日誌']]
+    .forEach(([v,n])=>add('記録', 'rec'+v, n, `記録 ${fmt(v)}件`, 'count', v));
+  [[10,'10日目'],[30,'30日目'],[100,'100日目'],[200,'200日目']]
+    .forEach(([v,n])=>add('記録', 'days'+v, n, `記録した日が ${v}日`, 'days', v));
+  [[3,'三日坊主卒業'],[7,'皆勤賞'],[14,'二週間連続'],[30,'一か月連続']]
+    .forEach(([v,n])=>add('記録', 'streak'+v, n, `${v}日続けて記録する`, 'streak', v));
+  // 所持金
+  [[1e5,'小銭持ち'],[5e5,'貯金家'],[1e6,'ミリオネア'],[2.5e6,'小金持ち'],[5e6,'大富豪'],[1e7,'艦隊の資金'],[2.5e7,'企業家'],[5e7,'財閥'],[1e8,'億万長者']]
+    .forEach(([v,n])=>add('所持金', 'bal'+v, n, `所持金 ${fmtM(v)} aUEC に到達`, 'bal', v));
+  // 稼ぎ
+  [[1e5,'いい日'],[2.5e5,'稼ぎ日'],[5e5,'稼ぎ日和'],[1e6,'ゴールドラッシュ'],[2e6,'大当たり'],[5e6,'伝説の一日']]
+    .forEach(([v,n])=>add('稼ぎ', 'day'+v, n, `1日で ${fmtM(v)} aUEC 稼ぐ`, 'bestDay', v));
+  [[5e5,'いい週'],[1e6,'週100万'],[3e6,'週300万'],[5e6,'週500万'],[1e7,'週1,000万']]
+    .forEach(([v,n])=>add('稼ぎ', 'week'+v, n, `1週間（月〜日）で ${fmtM(v)} aUEC 稼ぐ`, 'bestWeek', v));
+  [[1e6,'いい月'],[5e6,'月500万'],[1e7,'月1,000万'],[3e7,'月3,000万']]
+    .forEach(([v,n])=>add('稼ぎ', 'month'+v, n, `1か月で ${fmtM(v)} aUEC 稼ぐ`, 'bestMonth', v));
+  [[1e6,'収入100万'],[1e7,'収入1,000万'],[5e7,'収入5,000万'],[1e8,'収入1億']]
+    .forEach(([v,n])=>add('稼ぎ', 'income'+v, n, `収入の合計が ${fmtM(v)} aUEC`, 'income', v));
+  // 仕事（種類ごとの回数）
+  const RANK = [[1,'デビュー'],[10,'見習い'],[50,'ベテラン'],[100,'達人']];
+  for(const t of TYPES.filter(t=>t.dir > 0 && !['other_in','wikelo'].includes(t.id)))
+    RANK.forEach(([v,r])=>add('仕事', t.id + v, `${t.label}・${r}`, `${t.label}で ${v}回 稼ぐ`, 'type:' + t.id, v));
+  // 品目・店
+  [[3,'品目コレクター'],[10,'目利き'],[20,'市場通']].forEach(([v,n])=>add('交易', 'item'+v, n, `${v}種類の品目を売る`, 'items', v));
+  [[3,'寄り道'],[10,'常連'],[20,'星系めぐり']].forEach(([v,n])=>add('交易', 'shop'+v, n, `${v}か所の店で売り買いする`, 'shops', v));
+  // 買い物・支出
+  // 1回の買い物の大きさ（ゲーム内で買える船は 890 Jump の約6,200万が最高）
+  [[1e5,'新しい翼'],[5e5,'いい買い物'],[1e6,'大きな買い物'],[3e6,'中型船オーナー'],[5e6,'旗艦の主'],[1e7,'大型船オーナー'],[2e7,'船団長'],[3e7,'艦隊司令'],[5e7,'豪華客船の主']]
+    .forEach(([v,n])=>add('買い物', 'buy'+v, n, `1回で ${fmtM(v)} aUEC 以上の船・装備を買う`, 'bigBuy', v));
+  // 買い物の合計
+  [[1e6,'お得意様'],[5e6,'上客'],[1e7,'VIP'],[3e7,'大口顧客'],[5e7,'造船所の恩人'],[1e8,'億の買い物']]
+    .forEach(([v,n])=>add('買い物', 'spent'+v, n, `船・装備の買い物の合計が ${fmtM(v)} aUEC`, 'spent', v));
+  // 10万以上の買い物の回数・手に入れた船の種類
+  [[3,'買い物上手'],[5,'買い物好き'],[10,'買い物の達人'],[25,'カタログ制覇']]
+    .forEach(([v,n])=>add('買い物', 'buys'+v, n, `10万 aUEC 以上の買い物 ${v}回`, 'buys', v));
+  [[1,'最初の愛機'],[3,'格納庫がにぎやか'],[5,'コレクター'],[10,'艦隊']]
+    .forEach(([v,n])=>add('買い物', 'fleet'+v, n, `${v}種類の船を手に入れる`, 'fleet', v));
+  // 名前で分かる船（ゲーム内で aUEC で買える有名な船）。メモか船の欄の船名で判定
+  [['Cutlass Black','Cutlass 乗り'],['MISC Prospector','一人採掘'],['Vulture','一人サルベージ'],['Corsair','海賊の美学'],['MOLE','三人採掘'],
+   ['Constellation Andromeda','コンステレーション'],['Caterpillar','キャタピラー'],['MISC Starfarer','空飛ぶ給油所'],['MISC Hull C','大型輸送'],
+   ['C2 Hercules Starlifter','ハーキュリーズ'],['Reclaimer','解体屋の城'],['Carrack','探検家'],['Hammerhead','鉄壁の護衛'],['Perseus','砲艦の主'],['890 Jump','超豪華ヨット']]
+    .forEach(([ship,n])=>add('買い物', 'ship:' + normName(ship), n, `${ship} を手に入れる`, 'ship:' + normName(ship), 1));
+  // レンタル
+  [[1,'はじめてのレンタル'],[10,'レンタル常連'],[50,'レンタル王']].forEach(([v,n])=>add('買い物', 'rent'+v, n, `船のレンタル ${v}回`, 'rent', v));
+  // 修理・罰金
+  [[10,'整備士の友'],[50,'修理工場の常連'],[100,'壊し屋'],[300,'修理工場の大株主']].forEach(([v,n])=>add('買い物', 'repair'+v, n, `修理・補給 ${v}回`, 'type:repair', v));
+  add('買い物', 'fine1', '前科一犯', '罰金・保険を払う', 'type:fine', 1);
+  add('買い物', 'fine5', '常習犯', '罰金・保険を 5回 払う', 'type:fine', 5);
+  // Wikelo との交換（手入力の記録のメモで判定）
+  [[1,'Wikelo の客'],[5,'Wikelo の常連'],[10,'Wikelo の友']].forEach(([v,n])=>add('Wikelo', 'wk'+v, n, `Wikelo と ${v}回 交換する`, 'wk', v));
+  [[1,'クアンタニウム納品'],[10,'クアンタニウム便']].forEach(([v,n])=>add('Wikelo', 'wkq'+v, n, `Quantainium を ${v}回 納品する`, 'wkq', v));
+  [[1,'Polaris Bit'],[15,'Polaris まであと少し'],[50,'Idris の材料']].forEach(([v,n])=>add('Wikelo', 'wkbit'+v, n, `Polaris Bit を合計 ${v}個 手に入れる`, 'wkbit', v));
+  add('Wikelo', 'wkpolaris', '北極星', 'Polaris を手に入れる', 'wkpolaris', 1);
+  add('Wikelo', 'wkidris', 'フリゲートの主', 'Idris を手に入れる', 'wkidris', 1);
+  // 共有口座・スキャン
+  [[1,'はじめての送金'],[10,'持ちつ持たれつ'],[50,'息ぴったり']].forEach(([v,n])=>add('共有', 'xfer'+v, n, `メンバー間の送金 ${v}回`, 'xfer', v, {shared:true}));
+  [[1,'スキャナー'],[10,'スキャンの達人'],[50,'所持金ウォッチャー']].forEach(([v,n])=>add('共有', 'scan'+v, n, `スクリーンショットで所持金を ${v}回 合わせる`, 'scan', v));
+  add('共有', 'wipe', 'ワイプを越えて', '記録が2つ以上の期にまたがる', 'periods', 2);
+  // 時間
+  add('時間', 'night', '夜更かし', '深夜（0〜4時）の記録', 'night', 1);
+  add('時間', 'morning', '早起き', '早朝（5〜7時）の記録', 'morning', 1);
+  [[10,'週末パイロット'],[30,'週末の住人']].forEach(([v,n])=>add('時間', 'weekend'+v, n, `土日に記録した日が ${v}日`, 'weekend', v));
+  return A;
+})();
+const ACH_CATS = ['記録','所持金','稼ぎ','仕事','交易','買い物','Wikelo','共有','時間'];
+const TROPHY = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>';
+const wkOf = date => { const n = dayNum(date), dow = (new Date(n*864e5).getUTCDay() + 6) % 7; return new Date((n - dow)*864e5).toISOString().slice(0, 10); };
+// sc: 数える範囲（第N期を選んでいればその期だけ、所持金はその期の開始額から。null なら全期間）
+function achievements(sc){
+  const got = {}, M = {wk:0, wkq:0, wkbit:0, count:0, days:0, streak:0, bal:totalStart(sc), bestDay:0, bestWeek:0, bestMonth:0, income:0, items:0, shops:0, bigBuy:0, xfer:0, scan:0, periods:1, night:0, morning:0, weekend:0};
+  const net = {}, items = new Set(), shops = new Set(), weekendDays = new Set(), fleet = new Set();
+  let prev = '', run = 0;
+  // しきい値の低い順に並べておき、指標ごとに達成を確かめる
+  const byM = {};
+  for(const a of ACHS) (byM[a.m] = byM[a.m] || []).push(a);
+  for(const e of sorted(entries.filter(e=>inScope(sc, e.date)))){
+    M.count++; M.bal += e.amount;
+    if(e.date !== prev){
+      M.days++;
+      if(prev && dayNum(e.date) - dayNum(prev) > 30) M.periods++;
+      run = prev && dayNum(e.date) - dayNum(prev) === 1 ? run + 1 : 1; M.streak = Math.max(M.streak, run);
+      const dow = new Date(dayNum(e.date)*864e5).getUTCDay();
+      if(dow === 0 || dow === 6){ weekendDays.add(e.date); M.weekend = weekendDays.size; }
+      prev = e.date;
+    }
+    const memo = e.memo || '';
+    if(!isInternal(e)){
+      for(const k of ['d' + e.date, 'w' + wkOf(e.date), 'm' + e.date.slice(0, 7)]) net[k] = (net[k]||0) + e.amount;
+      M.bestDay = Math.max(M.bestDay, net['d' + e.date]);
+      M.bestWeek = Math.max(M.bestWeek, net['w' + wkOf(e.date)]);
+      M.bestMonth = Math.max(M.bestMonth, net['m' + e.date.slice(0, 7)]);
+      if(e.amount > 0){ M.income += e.amount; M['type:' + e.type] = (M['type:' + e.type]||0) + 1; }
+      else if(['repair','fine'].includes(e.type)) M['type:' + e.type] = (M['type:' + e.type]||0) + 1;
+      if(e.type === 'purchase' && isRental(e)) M.rent = (M.rent||0) + 1;
+      if(e.type === 'purchase' && !isRental(e)){
+        M.bigBuy = Math.max(M.bigBuy, -e.amount);
+        M.spent = (M.spent||0) - e.amount;
+        if(e.amount <= -100000) M.buys = (M.buys||0) + 1;
+        const got = shipBought(e);
+        if(got){ const k = 'ship:' + normName(got.ship.n); M[k] = 1; fleet.add(got.ship.n); M.fleet = fleet.size; }
+      }
+      const it = memo.match(/^貨物売却: (.+?) \d+ SCU/); if(it){ items.add(it[1]); M.items = items.size; }
+      const sh = String(e.src||'').startsWith('log-') && memo.match(/（([^（）]+)）$/); if(sh){ shops.add(sh[1]); M.shops = shops.size; }
+    }
+    if(e.type === 'wikelo'){
+      const t = (memo + ' ' + (e.ship||'')).toLowerCase();
+      M.wk++;
+      if(/quanta?i?nium|クアンタ/.test(t)) M.wkq++;
+      const bits = t.match(/polaris\s*bits?\D{0,4}(\d+)/);
+      if(bits) M.wkbit += +bits[1]; else if(/polaris\s*bits?/.test(t)) M.wkbit += 1;
+      if(/polaris/.test(t.replace(/polaris\s*bits?/g, ''))) M.wkpolaris = 1;
+      if(/idris/.test(t)) M.wkidris = 1;
+      const got = shipBought(e);
+      if(got){ fleet.add(got.ship.n); M.fleet = fleet.size; }
+    }
+    if(e.type === 'transfer' && !String(e.src||'').endsWith('-out')) M.xfer++;
+    if(String(e.src||'').startsWith('shot-')) M.scan++;
+    if(e.createdAt > 1e12 && new Date(e.createdAt).toLocaleDateString('sv-SE') === e.date){
+      const h = new Date(e.createdAt).getHours();
+      if(h < 5) M.night++; else if(h < 8) M.morning++;
+    }
+    for(const m in byM) if((M[m]||0) > 0) for(const a of byM[m]) if(!got[a.id] && M[m] >= a.v) got[a.id] = e.date;
+  }
+  return got;
+}
+const ACH_KEY = 'auec-ledger-ach-seen-v3';   // 実績を足すだけのときは印を変えない（新しく達成した分だけ知らせる）   // v3.2.0 で実績を作り直したので、新しい印で数え直す（初回は知らせずに既読）
+// 実績は常に表示し、上の「実績」ボタンはそこへ移動するだけ
+$('hdrAch').onclick = ()=> $('achPanel').scrollIntoView({behavior:'smooth', block:'start'});
+function renderAchievements(){
+  // 実績は上の「表示する期間」と連動: 第N期ならその期だけで数える（ワイプごとにやり直し）、全期間なら通算
+  const sc = balScope(), sname = scopeName();
+  const list = ACHS.filter(a=>!a.shared || SHARED), got = achievements(sc);
+  const done = list.filter(a=>got[a.id]).length;
+  $('achCount').textContent = `（${sname || '全期間'} ${done} / ${list.length}）`;
+  $('hdrAch').innerHTML = `${TROPHY}実績${sname ? '・' + sname : ''} ${done}/${list.length}`;
+  $('achs').innerHTML = ACH_CATS.map(c=>{
+    const xs = list.filter(a=>a.cat === c);
+    if(!xs.length) return '';
+    return `<h3 class="achcat">${c} <small>${xs.filter(a=>got[a.id]).length} / ${xs.length}</small></h3><div class="achgrid">` + xs.map(a=>
+      `<div class="ach ${got[a.id] ? 'on' : ''}" title="${esc(a.desc)}">${TROPHY}<b>${esc(a.name)}</b><small>${got[a.id] ? got[a.id].replace(/-/g,'.') + ' 達成' : esc(a.desc)}</small></div>`).join('') + '</div>';
+  }).join('');
+  // このブラウザで初めて見る実績は「実績解除」と知らせる（初めて開いたときは、今ある分をまとめて既読にする）
+  if(seenIds === null) return;
+  let seen = null;
+  const key = ACH_KEY + (sc ? '@' + sc.from : '');   // 期ごとに既読を分ける（期を切り替えただけで知らせが出ないように）
+  try{ seen = JSON.parse(localStorage.getItem(key) || 'null'); }catch(e){}
+  const now = list.filter(a=>got[a.id]).map(a=>a.id);
+  if(seen){
+    const fresh = list.filter(a=>got[a.id] && !seen.includes(a.id));
+    fresh.slice(0, 3).forEach((a, i)=> setTimeout(()=>fxBanner('ACHIEVEMENT UNLOCKED', `実績解除: ${a.name}（${a.desc}）`), 2500 * i));
+    if(fresh.length > 3) setTimeout(()=>toast(`ほかに ${fresh.length - 3}件の実績を解除しました`), 7500);
+  }
+  // 以前の版の実績 ID（名前が変わったもの）も残しておく
+  try{ localStorage.setItem(key, JSON.stringify([...new Set([...(seen||[]), ...now])])); }catch(e){}
+}
+// 隠しコマンド: ↑↑↓↓←→←→BA で量子ジャンプ
+const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+let konamiPos = 0;
+document.addEventListener('keydown', ev=>{
+  const k = ev.key.length === 1 ? ev.key.toLowerCase() : ev.key;
+  konamiPos = k === KONAMI[konamiPos] ? konamiPos + 1 : (k === KONAMI[0] ? 1 : 0);
+  if(konamiPos < KONAMI.length) return;
+  konamiPos = 0;
+  const q = document.createElement('div');
+  q.className = 'qt';
+  q.innerHTML = Array.from({length:28}, ()=>`<i style="top:${(Math.random()*100).toFixed(1)}%;animation-delay:${(Math.random()*.7).toFixed(2)}s;animation-duration:${(.35+Math.random()*.5).toFixed(2)}s"></i>`).join('') + '<b>QUANTUM TRAVEL</b>';
+  document.body.appendChild(q);
+  setTimeout(()=>q.remove(), 1950);
+});
+
+/* ---------- render ---------- */
+function render(){
+  trackFresh();
+  const D = {entries, settings};
+  periods = findPeriods(D.entries);
+  const sc = balScope(), sname = scopeName();
+  const {balance, days} = compute(D.entries.filter(e=>inScope(sc, e.date)), totalStart(sc));
+  // 共有の版は帳簿の「合計」の行（上にメンバーの行が並ぶ）
+  $('tBalLabel').innerHTML = SHARED ? `合計${sname ? ` <small>${sname}</small>` : ''}` : '現在の所持金' + (sname ? `・${sname}` : '');
+  $('startLabel').textContent = sname ? `${sname}の開始時の所持金 (aUEC)` : '記録開始時の所持金 (aUEC)';
+  $('actualLabel').textContent = SHARED ? '選んだ人の実際の所持金に合わせる (aUEC)' : '実際の所持金に合わせる (aUEC)';
+
+  $('tBal').innerHTML = odo('total', balance)+'<span class="u">aUEC</span>';
+  odoRun();
+  const td = days.find(d=>d.date===today());
+  const tdNet = td ? td.items.filter(i=>!isInternal(i)).reduce((a,b)=>a+b.amount,0) : 0;
+  const wk = D.entries.filter(e=>!isInternal(e) && dayNum(e.date)>dayNum(today())-7).reduce((a,b)=>a+b.amount,0);
+  $('tToday').textContent = sfmt(tdNet); $('tToday').className='v '+cls(tdNet);
+  $('tWeek').textContent = sfmt(wk); $('tWeek').className='v '+cls(wk);
+  renderPeriods();
+  const inP = e => inPeriod(e.date);
+  if(!periodRange()){
+    $('tCountLabel').textContent = '記録件数';
+    $('tCount').textContent = fmt(D.entries.length); $('tCount').className = 'v';
+  } else {
+    const net = D.entries.filter(e=>inP(e) && !isInternal(e)).reduce((a,b)=>a+b.amount,0);
+    $('tCountLabel').textContent = periodLabel() + 'の収支';   // 第2期の収支 など
+    $('tCount').textContent = sfmt(net); $('tCount').className = 'v '+cls(net);
+  }
+  if(!SHARED && document.activeElement!==$('startBal')){ const v = (sc && !isFirstScope(sc)) ? (startsFor(sc)['']||0) : (settings.startBalance||0); $('startBal').value = v ? fmt(v) : ''; }
+
+  renderBars(D.entries.filter(e=>inP(e)));
+  renderChart(days.filter(d=>inPeriod(d.date)), totalStart(sc), days);
+  renderDaily(days.filter(d=>inPeriod(d.date)));
+  renderDays(days.filter(d=>inPeriod(d.date)));
+  renderTabs();
+  renderPeople();
+  renderAchievements();
+  if(window.redrawPeers) window.redrawPeers();
+  // 光らせた記録は、光り終わったころに描き直して印を外す
+  if([...freshUntil.values()].some(t=>t > Date.now())){ clearTimeout(render.freshTimer); render.freshTimer = setTimeout(render, 2500); }
+}
+
+/* ---------- 表示する期間 ----------
+   記録の日付が30日以上あいた所で自動的に区切る（休止期間）。自由な日付範囲も選べる。開くたびに最新の期から始まる */
+// v1.5.1: 開くたびに必ず最新の期から始める（選んだ期間は覚えない）。以前に覚えた選択も消す
+try{ localStorage.removeItem('auec-ledger-period'); localStorage.removeItem('auec-ledger-period-v2'); }catch(e){}
+const GAP_DAYS = 30;
+// 初期表示は「最新の期」（latest は常に一番新しい期を指すので、新しい期ができれば自動で移る）
+let periods = [], period = {kind:'latest'};
+function findPeriods(list){
+  const ds = [...new Set(list.map(e=>e.date))].sort();
+  const out = [];
+  for(const d of ds){
+    const last = out[out.length-1];
+    if(last && dayNum(d) - dayNum(last.to) <= GAP_DAYS) last.to = d;
+    else out.push({from:d, to:d});
+  }
+  return out;
+}
+function periodRange(){
+  if(period.kind === 'latest'){ const p = periods[periods.length-1]; return p && periods.length > 1 ? {from:p.from, to:''} : null; }
+  if(period.kind === 'auto'){ const p = periods[period.i]; return p ? {from:p.from, to: period.i === periods.length-1 ? '' : p.to} : null; }
+  if(period.kind === 'custom') return {from: period.from || '', to: period.to || ''};
+  return null;
+}
+function inPeriod(date){
+  const r = periodRange(); if(!r) return true;
+  return (!r.from || date >= r.from) && (!r.to || date <= r.to);
+}
+function setPeriod(p){
+  period = p;
+  render();
+}
+function renderPeriods(){
+  if(period.kind === 'auto' && !periods[period.i]) period = {kind:'latest'};
+  if(period.kind === 'auto' && period.i === periods.length-1) period = {kind:'latest'};
+  const md = s => s.slice(2).replace(/-/g,'/');
+  const chips = [`<button type="button" data-p="all" aria-pressed="${period.kind==='all' || (period.kind==='latest' && periods.length < 2)}">全期間</button>`];
+  if(periods.length > 1) periods.forEach((p,i)=>{
+    const last = i === periods.length-1;
+    const on = last ? period.kind==='latest' : (period.kind==='auto' && period.i===i);
+    chips.push(`<button type="button" data-p="${last?'latest':'auto'}" data-pi="${i}" aria-pressed="${on}">第${i+1}期 ${md(p.from)}〜${last?'':md(p.to)}${last?'（最新）':''}</button>`);
+  });
+  chips.push(`<button type="button" data-p="custom" aria-pressed="${period.kind==='custom'}">日付を指定</button>`);
+  $('periodChips').innerHTML = chips.join('');
+  // 所持金の推移・日別の収支の切り替えも、一番上の「表示する期間」と同じ（日付指定は上の欄で）
+  const short = chips.slice(0, -1).map(c => c.replace(/第(\d+)期 [^<（]*/, '第$1期'));
+  for(const id of ['range1','range2','range3']) $(id).innerHTML = short.join('');
+  $('periodCustom').hidden = period.kind !== 'custom';
+  if(period.kind === 'custom'){
+    if(document.activeElement !== $('pFrom')) $('pFrom').value = period.from || '';
+    if(document.activeElement !== $('pTo')) $('pTo').value = period.to || '';
+  }
+}
+const onPeriodChip = ev=>{
+  const b = ev.target.closest('[data-p]'); if(!b) return;
+  if(b.dataset.p === 'latest') setPeriod({kind:'latest'});
+  else if(b.dataset.p === 'auto') setPeriod({kind:'auto', i:+b.dataset.pi});
+  else if(b.dataset.p === 'custom') setPeriod({kind:'custom', from: period.from || (periods.length ? periods[periods.length-1].from : today()), to: period.to || ''});
+  else setPeriod({kind:'all'});
+};
+for(const id of ['periodChips','range1','range2','range3']) $(id).addEventListener('click', onPeriodChip);
+for(const id of ['pFrom','pTo']) $(id).addEventListener('change', ()=>setPeriod({kind:'custom', from:$('pFrom').value, to:$('pTo').value}));
+
+/* 「表示する期間」の名前（第2期・指定期間・全期間） */
+function periodLabel(){
+  if(!periodRange()) return '全期間';
+  if(period.kind === 'custom') return '指定した期間';
+  return '第' + (period.kind === 'latest' ? periods.length : period.i + 1) + '期';
+}
+function renderTabs(){
+  const pl = periodLabel();
+  for(const id of ['scope1','scope2','scope3']) $(id).textContent = `（${pl}）`;
+  $('unitTabs').innerHTML = Object.entries(UNITS).map(([v,u])=>`<button type="button" data-unit="${v}" aria-pressed="${unit===v}">${u.label}</button>`).join('');
+  $('dailyTitle').textContent = UNITS[unit].label + 'の収支';
+}
+
+function renderBars(list){
+  const by = new Map();
+  // 収支の内訳は種別ごと（v2.2.21 で船ごと・人ごとの切り替えはやめた）
+  const keyOf = e => e.type;
+  const labelOf = k => icon(k) + typeOf(k).label;
+  for(const e of list){ if(isInternal(e)) continue; const k=keyOf(e); by.set(k,(by.get(k)||0)+e.amount); }
+  const rows = [...by.entries()].filter(r=>r[1] !== 0).sort((a,b)=>b[1]-a[1]);   // Wikelo との交換など 0 の種類は出さない
+  if(!rows.length){ $('bars').innerHTML = '<div class="empty">この期間の記録はありません。</div>'; return; }
+  const max = Math.max(...rows.map(r=>Math.abs(r[1]))) || 1;
+  const tot = rows.reduce((a,r)=>a+r[1],0);
+  $('bars').innerHTML = rows.map(([k,v])=>`
+    <div class="bar"><span>${labelOf(k)}</span>
+      <div class="track"><div class="fill ${v<0?'out':''}" style="width:${(Math.abs(v)/max*100).toFixed(1)}%"></div></div>
+      <span class="amt num ${cls(v)}">${sfmt(v)}</span></div>`).join('')
+    + `<div class="bar" style="border-top:1px solid var(--line);padding-top:8px"><span><b>合計</b></span><span></span><span class="amt num ${cls(tot)}"><b>${sfmt(tot)}</b></span></div>`;
+}
+
+function niceStep(span, n){
+  const raw = span/n, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw/p;
+  return (f<=1?1:f<=2?2:f<=5?5:10)*p;
+}
+function renderChart(days, start, allDays){
+  const el = $('chart');
+  if(!days.length){ el.innerHTML='<div class="empty">'+(entries.length?'この期間の記録はありません。':'記録を追加すると、ここに日ごとの所持金の推移が表示されます。')+'</div>'; return; }
+  const firstIdx = allDays.indexOf(days[0]);
+  const before = firstIdx>0 ? allDays[firstIdx-1].end : start;
+  const pts = [{x:dayNum(days[0].date)-1, y:before, label:'開始'}].concat(days.map(d=>({x:dayNum(d.date), y:d.end, label:d.date})));
+  // 共有モード: 一人ひとりの線（合計の線と同じ日付に揃える）
+  const series = [];
+  if(SHARED && people().length > 1){
+    const pd = personDaily(balScope());
+    const prev = firstIdx>0 ? pd.byDate[allDays[firstIdx-1].date] : pd.start;
+    for(const p of people()){
+      series.push({p, pts: [{x:pts[0].x, y:(prev||{})[p]||0}].concat(days.map(d=>({x:dayNum(d.date), y:(pd.byDate[d.date]||{})[p]||0})))});
+    }
+  }
+  const W=760,H=240,L=78,R=18,T=14,B=30;
+  const allY = pts.map(p=>p.y).concat(...series.map(s=>s.pts.map(p=>p.y)));
+  let ymin=Math.min(...allY), ymax=Math.max(...allY);
+  if(ymin===ymax){ ymin-=1000; ymax+=1000; }
+  const step = niceStep(ymax-ymin, 4);
+  ymin = Math.floor(ymin/step)*step; ymax = Math.ceil(ymax/step)*step;
+  const x0=pts[0].x, x1=pts[pts.length-1].x;
+  const X = x => L + (x1===x0?0.5:(x-x0)/(x1-x0))*(W-L-R);
+  const Y = y => T + (1-(y-ymin)/(ymax-ymin))*(H-T-B);
+  let g='';
+  for(let v=ymin; v<=ymax+1e-6; v+=step){
+    g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--grid)" stroke-width="1"/>`;
+    g+=`<text x="${L-8}" y="${Y(v)+4}" text-anchor="end">${fmt(v)}</text>`;
+  }
+  const every = Math.max(1, Math.ceil(days.length/6));
+  days.forEach((d,i)=>{ if(i%every===0 || i===days.length-1){
+    g+=`<text x="${X(dayNum(d.date))}" y="${H-10}" text-anchor="middle">${d.date.slice(5).replace('-','/')}</text>`; }});
+  let path = `M${X(pts[0].x)},${Y(pts[0].y)}`;
+  for(let i=1;i<pts.length;i++) path += ` L${X(pts[i].x)},${Y(pts[i].y)}`;
+  const area = path + ` L${X(x1)},${Y(ymin)} L${X(x0)},${Y(ymin)} Z`;
+  const dots = pts.slice(1).map((p,i)=>`<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="${i===pts.length-2?5:3}" fill="${i===pts.length-2?'var(--gold)':'var(--surface)'}" stroke="var(--accent)" stroke-width="2"><title>${p.label}  ${fmt(p.y)} aUEC</title></circle>`).join('');
+  const last = pts[pts.length-1];
+  const lines = series.map(s=>{
+    let d = `M${X(s.pts[0].x)},${Y(s.pts[0].y)}`;
+    for(let i=1;i<s.pts.length;i++) d += ` L${X(s.pts[i].x)},${Y(s.pts[i].y)}`;
+    return `<path d="${d}" fill="none" stroke="${colorOf(s.p)}" stroke-width="1.5" stroke-dasharray="5 3" stroke-linejoin="round"><title>${esc(nameOf(s.p))}  ${fmt(s.pts[s.pts.length-1].y)} aUEC</title></path>`;
+  }).join('');
+  const legend = series.length ? `<div class="legend"><span><i style="background:var(--accent)"></i>合計</span>${series.map(s=>`<span><i style="background:${colorOf(s.p)}"></i>${esc(nameOf(s.p))} ${fmt(s.pts[s.pts.length-1].y)}</span>`).join('')}</div>` : '';
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="日ごとの終了時所持金の推移">
+    ${g}
+    ${lines}
+    <path d="${area}" fill="var(--accent)" fill-opacity=".10"/>
+    <path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>
+    ${dots}
+    <text x="${Math.min(X(last.x), W-R)}" y="${Math.max(Y(last.y)-12, T+10)}" text-anchor="end" style="fill:var(--gold);font-weight:500">${fmt(last.y)}</text>
+  </svg>${legend}`;
+}
+
+/* 日別・週別・月別の収支: 収入（上向き・緑）と支出（下向き・赤）の棒、その期間の差引（点）。残高補正・メンバー間の送金は含めない */
+// 週は月曜はじまり（月〜日）。週の行の date はその週の月曜日、月の行は 1 日
+function unitKey(date){
+  if(unit === 'month') return date.slice(0, 7) + '-01';
+  if(unit === 'week'){
+    const n = dayNum(date), dow = (new Date(n*864e5).getUTCDay() + 6) % 7;   // 月曜=0 … 日曜=6
+    return new Date((n - dow)*864e5).toISOString().slice(0, 10);
+  }
+  return date;
+}
+function unitLabel(date, long){
+  const [y, m, d] = date.split('-');
+  if(unit === 'month') return long ? `${y}年${+m}月` : `${+m}月`;
+  if(unit === 'week'){
+    const end = new Date((dayNum(date) + 6)*864e5).toISOString().slice(0, 10).split('-');
+    return long ? `${+m}/${+d}(月)〜${+end[1]}/${+end[2]}(日)` : `${+m}/${+d}〜`;
+  }
+  return `${m}/${d}`;
+}
+function renderDaily(days){
+  const el = $('daily'), U = UNITS[unit];
+  const agg = new Map();
+  for(const d of days){
+    const k = unitKey(d.date);
+    const r = agg.get(k) || {date:k, inc:0, out:0};
+    for(const e of d.items){ if(isInternal(e)) continue; if(e.amount >= 0) r.inc += e.amount; else r.out += e.amount; }
+    agg.set(k, r);
+  }
+  const rows = [...agg.values()].map(r=>({...r, net:r.inc+r.out})).filter(r=>r.inc || r.out).sort((a,b)=>a.date<b.date?-1:1);
+  if(!rows.length){ el.innerHTML = '<div class="empty">この期間の収支はありません。</div>'; $('dailyStats').innerHTML = ''; return; }
+  const W=760, H=240, L=78, R=14, T=24, B=28;   // 上は王冠のぶん少し空ける
+  let ymax = Math.max(...rows.map(r=>r.inc), 0), ymin = Math.min(...rows.map(r=>r.out), 0);
+  if(ymax === ymin){ ymax += 1000; }
+  const step = niceStep(ymax - ymin, 4);
+  ymax = Math.ceil(ymax/step)*step; ymin = Math.floor(ymin/step)*step;
+  const Y = y => T + (1 - (y - ymin)/(ymax - ymin))*(H - T - B);
+  const slot = (W - L - R)/rows.length, bw = Math.max(2, Math.min(26, slot*0.7));
+  const X = i => L + slot*i + slot/2;
+  let g = '';
+  for(let v = ymin; v <= ymax + 1e-6; v += step){
+    g += `<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="${v===0?'var(--muted)':'var(--grid)'}" stroke-width="1"/>`;
+    g += `<text x="${L-8}" y="${Y(v)+4}" text-anchor="end">${fmt(v)}</text>`;
+  }
+  const every = Math.max(1, Math.ceil(rows.length/8));
+  // いちばん稼いだ日・週・月（差引が最大でプラス）の棒の上に王冠
+  const top = rows.reduce((a, r)=> r.net > (a ? a.net : 0) ? r : a, null);
+  rows.forEach((r,i)=>{
+    if(r === top){
+      const cy = Math.min(Y(r.inc || 0), Y(r.net)) - 6;
+      g += `<g transform="translate(${X(i) - 9} ${cy - 13})"><title>いちばん稼いだ${U.one}（${sfmt(r.net)}）</title><path d="M1 12h16l-1.6-8.5-4 3.8-2.4-6.3-2.4 6.3-4-3.8z" fill="#e8a92a" stroke="rgb(0 0 0 / .3)" stroke-width=".6" stroke-linejoin="round"/></g>`;
+    }
+    const tip = `<title>${unit==='day' ? r.date : unitLabel(r.date, true)}  収入 ${sfmt(r.inc)} / 支出 ${sfmt(r.out)} / 差引 ${sfmt(r.net)}</title>`;
+    if(r.inc) g += `<rect x="${X(i)-bw/2}" y="${Y(r.inc)}" width="${bw}" height="${Y(0)-Y(r.inc)}" rx="2" fill="var(--pos)" fill-opacity=".75">${tip}</rect>`;
+    if(r.out) g += `<rect x="${X(i)-bw/2}" y="${Y(0)}" width="${bw}" height="${Y(r.out)-Y(0)}" rx="2" fill="var(--neg)" fill-opacity=".7">${tip}</rect>`;
+    g += `<circle cx="${X(i)}" cy="${Y(r.net)}" r="3.5" fill="var(--gold)" stroke="var(--surface)" stroke-width="1.5">${tip}</circle>`;
+    if(i % every === 0 || i === rows.length-1) g += `<text x="${X(i)}" y="${H-8}" text-anchor="middle">${unitLabel(r.date)}</text>`;
+  });
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${U.one}ごとの収入と支出">${g}</svg>
+    <div class="legend"><span><i style="background:var(--pos)"></i>収入</span><span><i style="background:var(--neg)"></i>支出</span><span><i style="background:var(--gold)"></i>差引</span></div>`;
+  const tot = rows.reduce((a,r)=>a+r.net, 0), best = rows.reduce((a,r)=>r.net>a.net?r:a, rows[0]);
+  $('dailyStats').innerHTML = `<span>記録のある${U.one}<b>${rows.length}${U.cnt}</b></span><span>1${U.cnt}あたりの差引<b class="${cls(tot)}">${sfmt(Math.round(tot/rows.length))}</b></span>`
+    + `<span>いちばん稼いだ${U.one}<b class="${cls(best.net)}">${best.net > 0 ? '<svg viewBox="0 0 18 13" width="16" height="12" aria-hidden="true" style="vertical-align:-1px;margin-right:4px"><path d="M1 12h16l-1.6-8.5-4 3.8-2.4-6.3-2.4 6.3-4-3.8z" fill="#e8a92a"/></svg>' : ''}${unitLabel(best.date, true)} ${sfmt(best.net)}</b></span>`
+    + `<span>収入の合計<b class="pos">${sfmt(rows.reduce((a,r)=>a+r.inc,0))}</b></span><span>支出の合計<b class="neg">${sfmt(rows.reduce((a,r)=>a+r.out,0))}</b></span>`;
+}
+
+/* 記録の時刻: ログ由来はゲーム内の時刻、手入力は入力した時刻。記録の日付と違う日の時刻（過去日付で手入力など）は出さない */
+function entryTime(e){
+  if(!e.createdAt || e.createdAt < 1e12) return '';
+  const d = new Date(e.createdAt);
+  return d.toLocaleDateString('sv-SE') === e.date ? d.toTimeString().slice(0,5) : '';
+}
+function renderDays(days){
+  // その日に達成した実績（帳簿には保存せず、記録から計算して差し込む）
+  const achOn = {};
+  { const got = achievements(balScope()); for(const a of ACHS) if(got[a.id] && (!a.shared || SHARED)) (achOn[got[a.id]] = achOn[got[a.id]] || []).push(a); }
+  if(!days.length){ $('days').innerHTML='<div class="empty">記録はまだありません。「記録を追加」から最初の1件を入れてください。</div>'; return; }
+  $('days').innerHTML = [...days].reverse().map(d=>{
+    const net = d.inc + d.out;
+    const items = [...d.items].reverse().map(e=>{
+      const t = typeOf(e.type);
+      const who = SHARED && e.by ? `<span class="who" style="background:${colorOf(e.by)}">${esc(nameOf(e.by))}</span>` : '';
+      return `<div class="ent${(freshUntil.get(e.id)||0) > Date.now() ? ' fresh' : ''}"><span class="etime">${entryTime(e)}</span><span class="tag ${isInternal(e)?'adj':''}">${icon(t.id)}${t.label}</span>
+        <span class="memo">${who}${e.ship?`<span class="ship">${esc(e.ship)}</span>`:''}${esc(e.memo||'')}</span>
+        <span class="num ${cls(e.amount)}">${sfmt(e.amount)}</span>
+        ${readOnly?'<span></span>':`<button type="button" class="del" data-del="${esc(e.id)}" aria-label="この記録を削除">削除</button>`}</div>`;
+    }).join('');
+    return `<div class="day"><div class="dayhead">
+        <span class="d">${d.date.replace(/-/g,'.')}</span><span class="w">(${wday(d.date)})</span>
+        <span class="bal num">終了時 ${fmt(d.end)}</span>
+        <span class="net num ${cls(net)}">${sfmt(net)}</span></div>${(achOn[d.date]||[]).map(a=>`<div class="achrow">${TROPHY}<span>実績解除: <b>${esc(a.name)}</b></span><small>${esc(a.desc)}</small></div>`).join('')}${items}</div>`;
+  }).join('');
+}
+
+/* ---------- mission search ---------- */
+let mHits = [], mActive = 0;
+function searchMissions(q){
+  const toks = q.toLowerCase().split(/\s+/).filter(Boolean);
+  if(!toks.length) return [];
+  return SC.missions.filter(m=>toks.every(t=>m._q.includes(t))).slice(0, 30);
+}
+function rewardText(m){ return m.r ? fmt(m.r) + (m.rx && m.rx>m.r ? '〜'+fmt(m.rx) : '') : '報酬変動'; }
+function drawMissionList(){
+  const ul = $('mlist'), q = $('mq').value.trim();
+  if(!q){ ul.hidden = true; $('mq').setAttribute('aria-expanded','false'); return; }
+  ul.hidden = false; $('mq').setAttribute('aria-expanded','true');
+  if(!SC.missions.length){ ul.innerHTML = '<li class="none">ミッションデータがありません</li>'; return; }
+  if(!mHits.length){ ul.innerHTML = '<li class="none">見つかりません。種別と金額を手入力してください</li>'; return; }
+  ul.innerHTML = mHits.map((m,i)=>`<li role="option" data-mi="${i}" aria-selected="${i===mActive}">
+      <span class="mt">${esc(m.t)}${m.il?'<span class="il">違法</span>':''}</span><span class="mr">${rewardText(m)}</span>
+      <span class="mm">${typeOf(m.k).label}${m.g?' ・ '+esc(m.g):''}${m.s?' ・ '+esc(m.s.join('/')):''}</span></li>`).join('');
+}
+function pickMission(m){
+  picked = m;
+  selType = m.k; setDir(1); renderChips();
+  if(m.r) $('amount').value = String(m.r);
+  if(!$('memo').value.trim() || $('memo').dataset.auto) { $('memo').value = m.t; $('memo').dataset.auto = '1'; }
+  $('mq').value = ''; mHits = []; drawMissionList();
+  $('mpicked').hidden = false;
+  $('mpicked').innerHTML = `<b>${esc(m.t)}</b><span>${typeOf(m.k).label}</span><span class="num">基本報酬 ${rewardText(m)}</span>
+    <button type="button" class="linkbtn" id="unpick">選択を解除</button>`;
+  updatePreview();
+  $('amount').focus(); $('amount').select();
+}
+function unpick(){
+  picked = null; $('mpicked').hidden = true;
+  if($('memo').dataset.auto){ $('memo').value=''; delete $('memo').dataset.auto; }
+}
+$('mq').addEventListener('input', ()=>{ mHits = searchMissions($('mq').value); mActive = 0; drawMissionList(); });
+$('mq').addEventListener('keydown', ev=>{
+  if($('mlist').hidden || !mHits.length) return;
+  if(ev.key==='ArrowDown'){ mActive=(mActive+1)%mHits.length; drawMissionList(); ev.preventDefault(); }
+  else if(ev.key==='ArrowUp'){ mActive=(mActive-1+mHits.length)%mHits.length; drawMissionList(); ev.preventDefault(); }
+  else if(ev.key==='Enter'){ pickMission(mHits[mActive]); ev.preventDefault(); }
+  else if(ev.key==='Escape'){ $('mq').value=''; mHits=[]; drawMissionList(); }
+});
+$('mq').addEventListener('blur', ()=>setTimeout(()=>{ $('mlist').hidden = true; }, 150));
+$('mlist').addEventListener('mousedown', ev=>{ const li = ev.target.closest('[data-mi]'); if(li){ ev.preventDefault(); pickMission(mHits[+li.dataset.mi]); } });
+$('memo').addEventListener('input', ()=>{ delete $('memo').dataset.auto; });
+
+/* ---------- ship ---------- */
+$('ship').addEventListener('change', ()=>{
+  const s = SC.ships.find(x=>x.n.toLowerCase()===$('ship').value.trim().toLowerCase());
+  if(s) $('ship').value = s.n;
+  if(s && s.b && selType==='purchase' && !$('amount').value.trim()){
+    $('amount').value = String(s.b); updatePreview();
+    toast(`${s.n} のゲーム内最安値 ${fmt(s.b)} aUEC を入れました（UEX調べ）`);
+  }
+});
+
+/* ---------- Game.log import ---------- */
+/* 書式は 4.x 日本語クライアントで確認: 報酬は「Added notification "報酬 N aUEC"」、契約名は同じ秒の「契約完了：名前」。
+   報酬行の MissionId は常に 0 なので、同じ秒の報酬と契約完了をひとまとめにする。 */
+let logCands = [], logFilter = 'all';
+const LOG_KIND = {reward:'契約報酬', fee:'契約の費用', xfer:'送金の受け取り', sell:'売却', buy:'購入', rent:'レンタル'};
+
+function classifyContract(s){
+  if(/配達|Delivery/i.test(s)) return 'delivery';
+  if(/輸送|貨物|直送便|Cargo|Haul/i.test(s)) return 'hauling';
+  if(/サルベージ|Salvage/i.test(s)) return 'salvage';
+  if(/採掘|Mining/i.test(s)) return 'mining';
+  if(/賞金|Bounty/i.test(s)) return 'bounty';
+  if(/調査|回収|Recover|Investigat/i.test(s)) return 'recovery';
+  if(/護衛|防衛|排除|暗殺|撃破|警備|Eliminate|Defend|Escort|Security|Assassin/i.test(s)) return 'combat';
+  return 'other_in';
+}
+const shopLabel = s => s.replace(/^SCShop_(Entity_)?/,'').replace(/[-_]0*\d+$/,'');
+const isConsumable = s => /drink|food|consumable|healing|medpen|burrito|bar_|sandwich|oxypen|ammo|_mag\b|mag$/i.test(s);
+
+/* 貨物の売買のメモ（sc_import.py の com_memo と同じ書式） */
+function comMemo(m){
+  return (m.sell ? '貨物売却: ' : '貨物購入: ') + (m.item ? m.item + ' ' : '') + m.qty + ' SCU'
+    + (m.est ? '（推定 ' + m.est + ' SCU）' : '')
+    + (m.qty ? ' @' + Math.round(m.amt / m.qty).toLocaleString('en-US') : '') + '（' + m.shop + '）';
+}
+function parseLogText(text, out){
+  const coms = [];   // この回に読んだ貨物の売買 [記録, 中身]
+  let loginHandle = '';         // ログインした人のゲーム内の名前（User Login Success - Handle[...]）
+  const lines = text.split('\n');
+  const groups = new Map();     // 秒 -> {t, rewards:[]}
+  const dones = [];             // 契約完了 {t, name, used}
+  let lastBuy = null;
+  const pend = [];              // 売却・購入の要求（直後のエラーで失敗扱い）
+  const add = c => { if(!out.has(c.key)) out.set(c.key, c); };
+  let xfer = null;              // 「○○ が以下の金額を送信しました：」の次の行に金額が出る
+  const accepts = [];           // 契約の受注 {t, sec, mid, name}（費用はログに出ないのでゲームデータの費用表で補う）
+  const contractOf = new Map(); // MissionId -> 内部契約名（目標マーカーの行に出る）
+  const sharedIn = new Set();   // 他の人から共有された契約の MissionId（受けても費用は払っていない）
+  for(const line of lines){
+    if(line.charCodeAt(0) !== 60) continue;
+    if(xfer){
+      const a = line.match(/^<[^>]+>\s*([\d,]+)\s*aUEC/);
+      if(a){
+        const amt = +a[1].replace(/,/g,'');
+        if(amt) add({key:`log-xfer-${xfer.sec}-${amt}`, t:xfer.t, kind:'xfer', amount:amt, type:'other_in', checked:true, memo:`送金の受け取り: ${xfer.from}`, from:xfer.from});
+      }
+      xfer = null;
+    }
+    const notif = line.includes('Added notification "');
+    const req = !notif && line.includes('Request> Sending');
+    const err = !notif && !req && line.includes('Transaction Response Error');
+    if(!notif && !req && !err){
+      if(line.includes('User Login Success - Handle[')){
+        const h = line.match(/User Login Success - Handle\[([^\]]+)\]/); if(h) loginHandle = h[1];
+        continue;
+      }
+      if(line.includes('<MissionShared> Received share push message')){
+        const k = line.match(/missionId\[([0-9a-f-]+)\]/); if(k) sharedIn.add(k[1]);
+        continue;
+      }
+      if(line.includes('CreateMarker> Creating objective marker')){
+        const k = line.match(/missionId \[([0-9a-f-]+)\].*?contract \[([^\]]+)\]/);
+        if(k && !contractOf.has(k[1])) contractOf.set(k[1], k[2]);
+      }
+      continue;
+    }
+    const m = line.match(/^<(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d)/); if(!m) continue;
+    const sec = m[1], t = Date.parse(sec + 'Z');
+    if(notif){
+      const x = line.match(/Added notification "(.+?) が以下の金額を送信しました/);
+      if(x){ xfer = {t, sec, from:x[1]}; continue; }
+      const ac = line.match(/Added notification "契約が成立しました[：:]\s*(.*?):\s*".*?MissionId: \[([0-9a-f-]+)\]/);
+      if(ac){ accepts.push({t, sec, name:ac[1].split(' / ')[0].trim(), mid:ac[2]}); continue; }
+      let r = line.match(/Added notification "報酬 (\d+) aUEC/);
+      if(r){ const g = groups.get(sec) || {t, rewards:[]}; g.rewards.push(+r[1]); groups.set(sec, g); continue; }
+      r = line.match(/Added notification "契約完了[：:]\s*(.*?):\s*"/);
+      if(r) dones.push({t, name:r[1].split(' / ')[0].trim(), used:false});
+      continue;
+    }
+    if(err){
+      const r = line.match(/result\[(\w+)\] type\[(\w+)\]/);
+      const p = [...pend].reverse().find(p => !p.warn && t - p.t <= 15000 && t >= p.t);
+      if(r && p){ p.warn = '失敗の可能性（' + r[1] + '）'; p.checked = false; }
+      continue;
+    }
+    let r;
+    if((r = line.match(/Send(?:ShopBuy|StandardItemBuy)Request>.*?shopName\[([^\]]*)\].*?client_price\[([\d.]+)\].*?itemName\[([^\]]*)\](?:.*?quantity\[(\d+)\])?/))){
+      const [, shop, price, item, qty] = r, amt = Math.round(+price), q = +(qty||1);
+      if(!amt) continue;
+      if(lastBuy && lastBuy.shop === shop && t - lastBuy.tLast <= 120000){
+        lastBuy.amount -= amt; lastBuy.tLast = t;
+        lastBuy.items.set(item, (lastBuy.items.get(item)||0) + q);
+        if(!isConsumable(item)) lastBuy.type = 'purchase';
+        lastBuy.memo = '購入: ' + [...lastBuy.items].map(([k,v])=>k+(v>1?' ×'+v:'')).join('、') + '（' + shopLabel(shop) + '）';
+        continue;
+      }
+      lastBuy = {key:`log-buy-${sec}-${amt}`, t, tLast:t, shop, kind:'buy', amount:-amt, items:new Map([[item,q]]),
+        type: isConsumable(item) ? 'repair' : 'purchase', checked:true,
+        memo:'購入: ' + item + (q>1?' ×'+q:'') + '（' + shopLabel(shop) + '）'};
+      add(lastBuy); continue;
+    }
+    if((r = line.match(/SendRentalRequest>.*?shopName\[([^\]]*)\].*?client_price\[([\d.]+)\].*?itemName\[([^\]]*)\]/))){
+      const amt = Math.round(+r[2]); if(!amt) continue;
+      add({key:`log-rent-${sec}-${amt}`, t, kind:'rent', amount:-amt, type:'purchase', checked:true, memo:'レンタル: ' + r[3] + '（' + shopLabel(r[1]) + '）'});
+      continue;
+    }
+    if((r = line.match(/SendShopSellRequest>.*?shopName\[([^\]]*)\].*?client_price\[([\d.]+)\].*?itemName\[([^\]]*)\]/))){
+      const amt = Math.round(+r[2]); if(!amt) continue;
+      add({key:`log-sell-${sec}-${amt}`, t, kind:'sell', amount:amt, type:'other_in', checked:true, memo:'売却: ' + r[3] + '（' + shopLabel(r[1]) + '）'});
+      continue;
+    }
+    if((r = line.match(/SendCommodity(Sell|Buy)Request>.*?shopName\[([^\]]*)\].*?amount\[([\d.]+)\].*?quantity\[(\d+)\]/))){
+      const sell = r[1] === 'Sell', amt = Math.round(+r[3]); if(!amt) continue;
+      // 品目はログの resourceGUID を sc-data.json の commodities（Wiki の品目一覧）で名前にする
+      const g = line.match(/resourceGUID\[([0-9a-f-]+)\]/), item = g && (SC.commodities||{})[g[1]];
+      const com = {sell, item, qty: +r[4], amt, shop: shopLabel(r[2]), guid: g ? g[1] : '', est: null};
+      const c = {key:`log-com${sell?'sell':'buy'}-${sec}-${amt}`, t, kind: sell?'sell':'buy', amount: sell?amt:-amt, type:'trade', checked:true, memo: comMemo(com)};
+      add(c); pend.push(out.get(c.key)); if(pend.length > 20) pend.shift();
+      if(out.get(c.key) === c) coms.push([c, com]);
+    }
+  }
+  /* 箱に満杯まで詰まっていない売却の推定 SCU: 同じログの同じ店・同じ品目の売却のうち、1 SCU あたりが一番高いものを満杯とみなし、
+     それの 8 割未満なら「推定 ○ SCU」を添える（品質の違いでも単価は少し変わるので、差が小さいものは添えない） */
+  const best = {};
+  for(const [, m] of coms) if(m.sell && m.qty && m.guid){ const k = m.guid + '|' + m.shop; best[k] = Math.max(best[k] || 0, m.amt / m.qty); }
+  for(const [c, m] of coms){
+    const ref = m.sell && m.qty && m.guid ? best[m.guid + '|' + m.shop] : 0;
+    if(ref && m.amt / m.qty < ref * 0.8){
+      // 0.1 未満は小数2桁、それ以外は1桁（丸めた整数から文字にするので sc_import.py と同じ表記になる）
+      const x = m.amt / ref, h = Math.round(x * 100), d = Math.round(x * 10);
+      m.est = h < 10 ? '0.0' + h : Math.floor(d / 10) + '.' + (d % 10);
+      c.memo = comMemo(m);
+    }
+  }
+  const costs = SC.costs || {};
+  for(const a of accepts){
+    if(sharedIn.has(a.mid)) continue;   // 共有で受けた契約は、費用を払ったのは共有した人
+    // ゲームに入り直すと同じ契約の「契約が成立しました」がもう一度出るので、費用は契約（MissionId）ごとに1回だけ
+    if([...out.values()].some(c => c.kind === 'fee' && c.mid === a.mid)) continue;
+    const dn = contractOf.get(a.mid); if(!dn) continue;
+    const cost = costs[dn] || costs[dn.replace(/_\d+$/, '')];
+    if(!cost) continue;
+    add({key:`log-fee-${a.sec}-${a.mid.slice(0,8)}`, mid:a.mid, t:a.t, kind:'fee', amount:-cost, type:classifyContract(a.name + ' ' + dn), checked:true,
+      memo:`契約の費用: ${a.name}`, note:'費用はゲームデータの値（ログに金額は出ません）'});
+  }
+  for(const [sec, g] of groups){
+    // 報酬は契約完了と同じ秒か1〜2秒後に出る。前後3秒以内の未使用の契約完了を近い順に報酬の件数だけ結び付ける
+    g.names = dones.filter(d => !d.used && Math.abs(d.t - g.t) <= 3000)
+      .sort((a,b) => Math.abs(a.t-g.t) - Math.abs(b.t-g.t)).slice(0, g.rewards.length)
+      .map(d => { d.used = true; return d.name; });
+    const amt = g.rewards.reduce((a,b)=>a+b, 0);
+    const cnt = new Map(); for(const n of g.names) cnt.set(n, (cnt.get(n)||0) + 1);
+    const memo = cnt.size ? [...cnt].map(([k,v])=>k+(v>1?' ×'+v:'')).join('、') : '契約報酬';
+    add({key:`log-reward-${sec}-${amt}`, t:g.t, kind:'reward', amount:amt, type:classifyContract(g.names.join(' ')), checked:true,
+      memo: memo + (g.rewards.length>1 ? `（報酬${g.rewards.length}件）` : '')});
+  }
+  return loginHandle;
+}
+
+/* ---------- メンバー間の送金 ----------
+   送り主のゲーム内の名前（ハンドル）がメンバーに登録されていれば、受け取った人（取り込んだ人）に＋、送り主に−を記録する。
+   ＋の記録は src=ログのキー、−の記録は src=ログのキー+'-out'。共有の所持金は変わらず、収入・支出の集計にも入らない */
+function memberByHandle(h){
+  if(!h) return '';
+  const low = String(h).toLowerCase();
+  for(const [k, v] of Object.entries(settings.handles||{})) if(String(v).toLowerCase() === low) return k;
+  return '';
+}
+const xferMemo = (from, to) => `メンバー間の送金: ${nameOf(from)} → ${nameOf(to)}`;
+function transferPair(base, sender, receiver){
+  const plus = {...base, type:'transfer', memo:xferMemo(sender, receiver), by:receiver};
+  const minus = {...base, id:base.id.split('~')[0] + '-out' + (base.id.includes('~') ? '~' + base.id.split('~')[1] : ''), src:base.src + '-out', type:'transfer', amount:-base.amount, memo:xferMemo(sender, receiver), by:sender};
+  return [plus, minus];
+}
+/* ハンドルを登録したとき: 取り込み済みの「送金の受け取り」のうち、送り主がメンバーのものをメンバー間の送金に振り分け直す */
+async function reclassifyTransfers(){
+  const have = new Set(entries.map(e=>e.src).filter(Boolean));
+  const tag = Date.now().toString(36), add = [], drop = [];
+  for(const e of entries){
+    if(!e.src || !e.src.startsWith('log-xfer-') || e.src.endsWith('-out') || e.type === 'transfer') continue;
+    const m = String(e.memo||'').match(/^送金の受け取り: (.+)$/); if(!m) continue;
+    const sender = memberByHandle(m[1]); if(!sender || sender === e.by || !e.by) continue;
+    const {id, ...rest} = e;
+    const [plus, minus] = transferPair({...rest, id:id.split('~')[0] + '~' + tag}, sender, e.by);
+    add.push(plus); if(!have.has(minus.src)) add.push(minus);
+    drop.push(e.id);
+  }
+  if(!add.length) return 0;
+  await store.addMany(add);
+  for(const id of drop) await store.remove(id);
+  return drop.length;
+}
+
+async function readLogs(files, auto){
+  const out = new Map();
+  const list = [...files].sort((a,b)=>a.lastModified-b.lastModified);
+  $('logResult').hidden = true;
+  await scReady;
+  let handle = '';
+  for(let i=0; i<list.length; i++){
+    $('logStatus').textContent = `読み込み中… ${i+1}/${list.length}　${list[i].name}`;
+    try{ handle = parseLogText(await list[i].text(), out) || handle; }
+    catch(e){ toast(list[i].name + ' を読めませんでした'); }
+  }
+  // ログインしていたゲーム内の名前を、取り込んだ人（自分）のハンドルとして自動で登録する
+  let handleMsg = '';
+  if(SHARED && me && handle && (settings.handles||{})[me] !== handle){
+    const other = memberByHandle(handle);
+    if(other && other !== me) handleMsg = `（ログのゲーム内の名前「${handle}」は ${nameOf(other)} に登録済みのため、自分には登録していません）`;
+    else {
+      try{
+        await store.setHandle(me, handle);
+        settings = {...settings, handles:{...(settings.handles||{}), [me]:handle}};
+        const n = await reclassifyTransfers();
+        handleMsg = `（ゲーム内の名前「${handle}」をあなたに登録しました` + (n ? `。取り込み済みの送金 ${n}件をメンバー間の送金に振り分け直しました` : '') + '）';
+      }catch(e){ handleMsg = '（ゲーム内の名前を登録できませんでした: ' + saveErr(e) + '）'; }
+    }
+  }
+  const have = new Set(entries.map(e=>e.src).filter(Boolean));
+  // 帳簿にすでにある契約の費用（MissionId の先頭8文字）。入り直しで出た同じ契約の受注は取り込まない
+  const feeMids = new Set([...have].filter(k=>k.startsWith('log-fee-')).map(k=>k.slice(-8)));
+  logCands = [...out.values()].sort((a,b)=>a.t-b.t).filter(c=>!(c.kind === 'fee' && !have.has(c.key) && feeMids.has(c.mid.slice(0,8)))).map(c=>{
+    c.date = new Date(c.t).toLocaleDateString('sv-SE');
+    c.memo = c.memo.slice(0, 150);
+    if(c.kind === 'xfer' && SHARED){
+      const sender = memberByHandle(c.from);
+      if(sender && me && sender !== me){ c.internal = sender; c.type = 'transfer'; c.memo = xferMemo(sender, me); c.note = '共有の所持金は変わりません（受け取った人に＋、送った人に−）'; }
+    }
+    if(have.has(c.key)){ c.done = true; c.checked = false; }
+    return c;
+  });
+  const done = logCands.filter(c=>c.done).length;
+  $('logStatus').textContent = logCands.length
+    ? `${list.length}個のファイルから ${logCands.length}件 見つかりました` + (done ? `（うち ${done}件は取り込み済み）` : '') + '。種別は必要に応じて変えられます。'
+    : `${list.length}個のファイルを読みましたが、取り込める記録は見つかりませんでした。`;
+  if(list.length === 1 && logCands.length) $('logStatus').textContent += '　※ Game.log は最後に遊んだ1回分だけです。それより前は logbackups にあります（「LIVE フォルダごと選ぶ」でまとめて読めます）。';
+  if(handleMsg) $('logStatus').textContent += handleMsg;
+  try{ $('logPanel').scrollIntoView({behavior:'smooth', block:'start'}); }catch(e){}
+  // 右上の「ログを取り込む」から来たときは、初期の選択のまま自動で取り込む
+  if(auto && !readOnly) await importSelected(true);
+  $('logResult').hidden = !logCands.length;
+  logFilter = 'all'; drawLog();
+}
+
+function drawLog(){
+  const kinds = ['reward','fee','xfer','sell','buy','rent'].filter(k=>logCands.some(c=>c.kind===k));
+  $('logFilters').innerHTML = [['all','すべて']].concat(kinds.map(k=>[k,LOG_KIND[k]]))
+    .map(([v,l])=>`<button type="button" data-lf="${v}" aria-pressed="${logFilter===v}">${l} ${logCands.filter(c=>v==='all'||c.kind===v).length}</button>`).join('');
+  const opts = sel => TYPES.map(t=>`<option value="${t.id}"${t.id===sel?' selected':''}>${t.label}</option>`).join('');
+  const rows = logCands.map((c,i)=>({c,i})).filter(({c})=>logFilter==='all'||c.kind===logFilter);
+  $('logTable').innerHTML = `<table><thead><tr><th></th><th>日時</th><th>内容</th><th>種別</th><th style="text-align:right">金額</th></tr></thead><tbody>` +
+    rows.map(({c,i})=>`<tr class="${c.done?'done':c.warn?'warn':''}">
+      <td><input type="checkbox" data-lc="${i}" ${c.checked?'checked':''} ${c.done?'disabled':''} aria-label="取り込む"></td>
+      <td class="when">${c.date.slice(2).replace(/-/g,'/')} ${new Date(c.t).toTimeString().slice(0,5)}</td>
+      <td class="what">${esc(c.memo)}${c.done?'<span class="note">取り込み済み</span>':c.warn?`<span class="note neg">${esc(c.warn)}</span>`:c.note?`<span class="note">${esc(c.note)}</span>`:''}</td>
+      <td>${c.internal ? XFER.label : `<select data-lt="${i}" ${c.done?'disabled':''} aria-label="種別">${opts(c.type)}</select>`}</td>
+      <td class="amt num ${cls(c.amount)}">${sfmt(c.amount)}</td></tr>`).join('') + '</tbody></table>';
+  drawLogSum();
+}
+function drawLogSum(){
+  const sel = logCands.filter(c=>c.checked && !c.done);
+  const tot = sel.reduce((a,c)=>a+c.amount, 0);
+  $('logSum').innerHTML = `選択中 ${fmt(sel.length)}件　合計 <span class="${cls(tot)}">${sfmt(tot)} aUEC</span>`;
+  $('logImport').disabled = !sel.length || readOnly;
+}
+let autoNext = false;
+const PCTOOL_KEY = 'auec-sclog';
+const usePcTool = () => { try{ return MODE === 'web' && localStorage.getItem(PCTOOL_KEY) === '1'; }catch(e){ return false; } };
+/* ---------- 取り込みプログラム（exe）の版の確認 ----------
+   exe は取り込みのたびに「版・追加件数」を帳簿（presence/exe-名前）に書き残す。
+   起動して25秒たっても返事がない（入っていない・古い）か、版が MIN_EXE_VERSION より古ければ、警告とダウンロードを出す */
+const MIN_EXE_VERSION = '2.2.20';
+const verLt = (a, b) => { const x = String(a).split('.').map(Number), y = String(b).split('.').map(Number); for(let i=0;i<3;i++){ if((x[i]||0) !== (y[i]||0)) return (x[i]||0) < (y[i]||0); } return false; };
+let exeWait = null;
+const myExe = () => (window.exeStatus||{})[me];
+function showExeAlert(msg){ $('exeAlertMsg').textContent = msg; $('exeAlert').hidden = false; }
+function exeStateText(){
+  const st = myExe();
+  if(!st) return 'この PC の取り込みプログラムからの記録はまだありません。';
+  const when = st.at ? new Date(st.at).toLocaleString('ja-JP', {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'}) : '';
+  return `この PC の取り込みプログラム: v${st.exeVersion}${verLt(st.exeVersion, MIN_EXE_VERSION) ? '（古い版です）' : ''}　最後の取り込み ${when}（${st.ok ? fmt(st.added||0) + '件を追加' : 'エラー'}）`
+    + (st.pending ? `　Firebase の上限などで未送信 ${fmt(st.pending)}件（この PC にためてあり、あとで自動で送ります）` : '')
+    + (st.shot ? `　スクリーンショットの所持金 ${fmt(st.shot.value)}（${new Date(st.shot.at).toLocaleString('ja-JP', {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'})}）` : '');
+}
+/* スクリーンショット（F1 → PrtSc）で読んだ所持金の結果を知らせる。
+   ページを開く前に撮ったものの結果は出さない（開いた直後は状況が遅れて届くことがあり、前回の結果を新しい知らせと取り違えないように、撮影時刻で判断する） */
+const PAGE_OPENED_AT = Date.now();
+let lastShotAt = 0;
+let lastStartAt = 0;
+function shotNotice(st){
+  // スクリーンショットを見つけた瞬間の知らせ（結果はこのあと届く）
+  const ss = st && st.shotStart;
+  if(ss && ss > PAGE_OPENED_AT && ss > lastStartAt){
+    lastStartAt = ss;
+    const m = 'スクリーンショットを受け取りました。所持金を読み取って帳簿と比べています…';
+    $('logStatus').textContent = m; toast(m);
+  }
+  const sh = st && st.shot;
+  if(!sh || sh.at < PAGE_OPENED_AT || sh.at <= lastShotAt) return;
+  lastShotAt = sh.at;
+  const m = sh.queued ? `スクリーンショットの所持金 ${fmt(sh.value)}：Firebase の上限のため、送れるようになったら帳簿と比べて記録します`
+    : sh.recorded ? `スクリーンショットの所持金 ${fmt(sh.value)}：差額 ${sfmt(sh.diff)} を残高補正として記録しました`
+    : sh.skipped ? `スクリーンショットの所持金 ${fmt(sh.value)}（帳簿 ${fmt(sh.ledger)}）: ${sh.skipped}`
+    : `スクリーンショットの所持金 ${fmt(sh.value)}：帳簿と一致しています`;
+  $('logStatus').textContent = m; toast(m);
+  if(!sh.queued) fxBanner('SCAN COMPLETE', `所持金 ${fmt(sh.value)} aUEC` + (sh.recorded ? ` ・ 補正 ${sfmt(sh.diff)}` : sh.skipped ? ' ・ 記録せず' : ' ・ 一致'));
+}
+window.onExeStatus = ()=>{
+  $('exeState').textContent = exeStateText();
+  const st = myExe();
+  shotNotice(st);
+  if(!st || !usePcTool()) return;
+  if(verLt(st.exeVersion, MIN_EXE_VERSION)) showExeAlert(`取り込みプログラムが古い版（v${st.exeVersion}）です。最新版をダウンロードして、今の exe に上書きしてください。古いままだと、記録が正しく取り込まれないことがあります。`);
+  // 最新版の報告が届いたら、どこから起動した場合でも（ダブルクリックでも）警告を消す
+  else if(st.ok && !exeWait) $('exeAlert').hidden = true;
+  if(exeWait && st.at >= exeWait.since){
+    clearTimeout(exeWait.timer); exeWait = null;
+    if(!st.ok){ showExeAlert('取り込みでエラーが出ました: ' + (st.message || '不明なエラー')); return; }
+    if(!verLt(st.exeVersion, MIN_EXE_VERSION)) $('exeAlert').hidden = true;
+    const m = st.added ? `${fmt(st.added)}件を取り込みました（取り込みプログラム v${st.exeVersion}）` : `新しい記録はありませんでした（取り込みプログラム v${st.exeVersion}）`;
+    $('logStatus').textContent = m; toast(m);
+  }
+};
+$('hdrImport').onclick = ()=>{
+  if(usePcTool()){
+    // この PC の取り込みプログラム（sclog://）を起動。結果は共有帳簿を通して、この画面にそのまま反映される
+    location.href = 'sclog://import';
+    $('logStatus').textContent = 'この PC の取り込みプログラムを起動しました。数秒〜十数秒で記録に反映されます。';
+    toast('取り込みプログラムを起動しました');
+    if(exeWait) clearTimeout(exeWait.timer);
+    exeWait = {since: Date.now() - 5000, timer: setTimeout(()=>{
+      exeWait = null;
+      showExeAlert('取り込みプログラムから応答がありませんでした。この PC に入っていないか、古い版の可能性があります。最新版をダウンロードし、今の exe があれば同じ場所に上書きしてからダブルクリックしてください。');
+    }, 25000)};
+    return;
+  }
+  autoNext = true; $('logDir').click();
+};
+document.querySelector('label[for="logDir"]').addEventListener('click', ()=>{ autoNext = false; });
+const openExePop = open => { $('exePop').hidden = !open; $('hdrExe').setAttribute('aria-expanded', String(open)); if(open) $('exeState').textContent = exeStateText(); };
+if(MODE === 'web'){
+  $('hdrExe').hidden = false;
+  $('hdrExe').onclick = ()=> openExePop($('exePop').hidden);
+  $('exeClose').onclick = ()=> openExePop(false);
+  $('exeAlertClose').onclick = ()=>{ $('exeAlert').hidden = true; };
+  $('exeAlertHelp').onclick = ()=>{ openExePop(true); $('exePop').querySelector('details').open = true; };
+  try{ $('usePcTool').checked = localStorage.getItem(PCTOOL_KEY) === '1'; }catch(e){}
+  $('usePcTool').addEventListener('change', ev=>{ try{ localStorage.setItem(PCTOOL_KEY, ev.target.checked ? '1' : '0'); }catch(e){} });
+}
+$('logFiles').addEventListener('change', ev=>{ if(ev.target.files.length) readLogs(ev.target.files); ev.target.value = ''; });
+// Game.log と logbackups 内の .log だけを読む（ほかのフォルダの .log は無視）
+const keepLogPath = p => { p = p.split('\\').join('/'); return /\.log$/i.test(p) && (/(^|\/)Game\.log$/i.test(p) || /(^|\/)logbackups\//i.test(p)); };
+$('logDir').addEventListener('change', ev=>{
+  const fs = [...ev.target.files].filter(f=>keepLogPath(f.webkitRelativePath || f.name));
+  ev.target.value = '';
+  const auto = autoNext; autoNext = false;
+  if(fs.length) readLogs(fs, auto);
+  else $('logStatus').textContent = 'このフォルダには Game.log も logbackups もありませんでした。StarCitizen の中の LIVE フォルダを選んでください。';
+});
+/* ドラッグ＆ドロップ: フォルダは logbackups / LIVE など関係するところだけ辿る（data や Bin64 は開かない） */
+async function droppedLogFiles(items){
+  const out = [];
+  const readAll = dir => new Promise((res, rej) => { const r = dir.createReader(), all = []; const step = () => r.readEntries(es => { if(!es.length) return res(all); all.push(...es); step(); }, rej); step(); });
+  const fileOf = fe => new Promise((res, rej) => fe.file(res, rej));
+  const walk = async (e, depth) => {
+    if(e.isFile){
+      if(depth === 0 ? /\.log$/i.test(e.name) : keepLogPath(e.fullPath)) out.push(await fileOf(e));
+      return;
+    }
+    if(depth > 0 && !/^(logbackups|LIVE|PTU|EPTU|HOTFIX|TECH-PREVIEW)$/i.test(e.name)) return;
+    if(depth > 2) return;
+    for(const c of await readAll(e)) await walk(c, depth + 1);
+  };
+  for(const e of items) if(e) await walk(e, 0);
+  return out;
+}
+const dz = $('logDrop');
+for(const t of ['dragenter','dragover']) $('logPanel').addEventListener(t, ev=>{ if([...ev.dataTransfer.types].includes('Files')){ ev.preventDefault(); dz.classList.add('over'); } });
+$('logPanel').addEventListener('dragleave', ev=>{ if(!$('logPanel').contains(ev.relatedTarget)) dz.classList.remove('over'); });
+$('logPanel').addEventListener('drop', async ev=>{
+  ev.preventDefault(); dz.classList.remove('over');
+  const items = [...ev.dataTransfer.items].map(i => i.webkitGetAsEntry && i.webkitGetAsEntry());
+  const plain = [...ev.dataTransfer.files].filter(f=>/\.log$/i.test(f.name));
+  $('logStatus').textContent = 'ファイルを探しています…';
+  let fs = [];
+  try{ fs = items.some(Boolean) ? await droppedLogFiles(items) : plain; }
+  catch(e){ fs = plain; }
+  if(fs.length) readLogs(fs);
+  else $('logStatus').textContent = 'ログファイルが見つかりませんでした。logbackups フォルダか Game.log を落としてください。';
+});
+$('copyLogPath').onclick = async ()=>{
+  try{ await navigator.clipboard.writeText($('logPath').value); toast('場所をコピーしました'); }
+  catch(e){ $('logPath').select(); toast('選択したのでコピーしてください'); }
+};
+$('logTable').addEventListener('change', ev=>{
+  const cb = ev.target.closest('[data-lc]'); if(cb){ logCands[+cb.dataset.lc].checked = cb.checked; drawLogSum(); return; }
+  const st = ev.target.closest('[data-lt]'); if(st){ logCands[+st.dataset.lt].type = st.value; }
+});
+$('logFilters').addEventListener('click', ev=>{ const b = ev.target.closest('[data-lf]'); if(b){ logFilter = b.dataset.lf; drawLog(); } });
+const logVisible = () => logCands.filter(c=>!c.done && (logFilter==='all'||c.kind===logFilter));
+$('logAll').onclick = ()=>{ for(const c of logVisible()) c.checked = true; drawLog(); };
+$('logNone').onclick = ()=>{ for(const c of logVisible()) c.checked = false; drawLog(); };
+$('logClose').onclick = ()=>{ logCands = []; $('logResult').hidden = true; $('logStatus').textContent = ''; };
+async function importSelected(auto){
+  const sel = logCands.filter(c=>c.checked && !c.done);
+  if(!sel.length){
+    if(auto){ const m = '新しい記録はありませんでした（すべて取り込み済みです）。'; $('logStatus').textContent = m; toast(m); }
+    return;
+  }
+  const have = new Set(entries.map(e=>e.src).filter(Boolean));
+  const list = sel.flatMap(c=>{
+    const e = {id:c.key, date:c.date, type:c.type, amount:c.amount, memo:c.memo, src:c.key, createdAt:c.t};
+    if(SHARED && me) e.by = me;
+    if(c.internal && me){ const [plus, minus] = transferPair(e, c.internal, me); return have.has(minus.src) ? [plus] : [plus, minus]; }
+    return [e];
+  });
+  const btn = $('logImport'), label = btn.textContent;
+  const say = (msg, bad) => { for(const id of ['logStatus','logSum']) $(id).innerHTML = bad ? `<span class="neg">${esc(msg)}</span>` : esc(msg); };
+  btn.disabled = true; btn.textContent = `取り込み中… 0/${list.length}`;
+  say(`取り込み中… 0/${list.length}件（このままお待ちください）`);
+  try{
+    await store.addMany(list, n => { btn.textContent = `取り込み中… ${n}/${list.length}`; say(`取り込み中… ${n}/${list.length}件（このままお待ちください）`); });
+    for(const c of sel){ c.done = true; c.checked = false; }
+    drawLog();
+    say(`${list.length}件を取り込みました。所持金がゲーム内とずれている場合は「実際の所持金に合わせる」で補正してください。`);
+    toast(`${list.length}件を取り込みました`);
+  }catch(err){
+    say((err && (err.code === 'permission-denied' || err.code === 'not-connected'))
+      ? saveErr(err)
+      : '途中で止まりました（' + (err.code||err) + '）。もう一度「選んだ記録を取り込む」を押すと、残りから続けます。', true);
+    const have = new Set(entries.map(e=>e.src).filter(Boolean));
+    for(const c of logCands) if(have.has(c.key)){ c.done = true; c.checked = false; }
+    const msg = $('logSum').innerHTML; drawLog(); $('logSum').innerHTML = msg;
+  }finally{
+    btn.textContent = label; btn.disabled = !logCands.some(c=>c.checked && !c.done) || readOnly;
+  }
+}
+$('logImport').onclick = ()=>importSelected(false);
+
+$('avClose').onclick = closeAvatarPop;
+$('avFile').addEventListener('change', ev=>{ const f = ev.target.files[0]; ev.target.value = ''; if(f) saveAvatar(f); });
+$('avRemove').onclick = async ()=>{
+  try{ await store.setAvatar(me, ''); const a = {...(settings.avatars||{})}; delete a[me]; settings = {...settings, avatars:a}; render(); closeAvatarPop(); toast('アイコンを外しました'); }
+  catch(e){ $('avMsg').textContent = saveErr(e); }
+};
+
+/* ---------- form ---------- */
+function renderChips(){
+  const mk = t => `<button type="button" class="chip ${t.dir<0?'out':''}" data-type="${t.id}" aria-pressed="${selType===t.id}">${icon(t.id)}${t.label}</button>`;
+  $('chipsIn').innerHTML = TYPES.filter(t=>t.dir>0).map(mk).join('');
+  $('chipsOut').innerHTML = TYPES.filter(t=>t.dir<0).map(mk).join('');
+  if(readOnly) applyReadOnly();
+}
+function setDir(d){ dir=d; $('dirIn').setAttribute('aria-pressed', d>0); $('dirOut').setAttribute('aria-pressed', d<0); updatePreview(); }
+function updatePreview(){
+  const v = parseAmount($('amount').value);
+  $('preview').innerHTML = isNaN(v) ? ($('amount').value?'<span class="neg">数値で入力してください</span>':'') :
+    `<span class="${dir>0?'pos':'neg'}">${sfmt(dir*Math.abs(v))} aUEC</span> ・ ${typeOf(selType).label}`;
+}
+document.addEventListener('click', ev=>{
+  if(ev.target.id==='unpick'){ unpick(); return; }
+  const c = ev.target.closest('[data-type]');
+  if(c){ selType = c.dataset.type; setDir(typeOf(selType).dir); renderChips(); return; }
+  const un = ev.target.closest('[data-unit]');
+  if(un){ unit = un.dataset.unit; try{ localStorage.setItem('auec-ledger-unit', unit); }catch(e){} render(); return; }
+  const del = ev.target.closest('[data-del]');
+  if(del){
+    if(!del.classList.contains('arm')){
+      del.classList.add('arm'); del.textContent='本当に削除';
+      setTimeout(()=>{ if(del.isConnected){ del.classList.remove('arm'); del.textContent='削除'; } }, 3000);
+    } else {
+      store.remove(del.dataset.del).then(()=>toast('削除しました')).catch(e=>toast('削除できませんでした（'+(e.code||e)+'）'));
+    }
+  }
+});
+$('dirIn').onclick = ()=>setDir(1);
+$('dirOut').onclick = ()=>setDir(-1);
+$('amount').addEventListener('input', updatePreview);
+$('form').addEventListener('submit', async ev=>{
+  ev.preventDefault();
+  let v = parseAmount($('amount').value);
+  if(selType === 'wikelo' && (isNaN(v) || !$('amount').value.trim())) v = 0;   // 交換は aUEC の出入りがないので 0 でよい
+  if(isNaN(v) || (v===0 && selType !== 'wikelo')){ toast('金額を入力してください'); $('amount').focus(); return; }
+  if(selType === 'wikelo' && !$('memo').value.trim() && !$('ship').value.trim()){ toast('メモに交換したもの（Polaris、Polaris Bit 15 など）を書いてください'); $('memo').focus(); return; }
+  const e = {date:$('date').value||today(), type:selType, amount:dir*Math.abs(v), memo:$('memo').value.trim(), createdAt:Date.now()};
+  const ship = $('ship').value.trim(); if(ship) e.ship = ship;
+  if(picked) e.mission = picked.t;
+  if(SHARED && me) e.by = me;
+  $('submitBtn').disabled = true;
+  try{
+    await store.add(e);
+    $('amount').value=''; $('memo').value=''; delete $('memo').dataset.auto; unpick(); updatePreview();
+    toast(`${typeOf(e.type).label} ${sfmt(e.amount)} を記録しました`); $('mq').focus();
+  }
+  catch(err){ toast('保存できませんでした（'+(err.code||err)+'）'); }
+  finally{ $('submitBtn').disabled = false; }
+});
+$('saveStart').onclick = async ()=>{
+  const v = $('startBal').value.trim()==='' ? 0 : parseAmount($('startBal').value);
+  if(isNaN(v)){ toast('数値で入力してください'); return; }
+  const who = SHARED ? $('who').value : '';
+  if(SHARED && !who){ toast('対象の人がいません。先に名前を決めてください'); return; }
+  try{
+    const sc = balScope(), sn = scopeName();
+    if(SHARED){ await store.setPersonStart(startKey(who, sc), v); toast(nameOf(who)+' の'+(sn?sn+'の':'')+'開始時の所持金を '+fmt(v)+' aUEC にしました'); }
+    else if(sc && !isFirstScope(sc)){ await store.setPersonStart(startKey('', sc), v); toast(sn+'の開始時の所持金を '+fmt(v)+' aUEC にしました'); }
+    else { await store.setStart(v); toast('開始時の所持金を '+fmt(v)+' aUEC にしました'); }
+  }catch(e){ toast(saveErr(e)); }
+};
+const saveErr = e => (e && e.code==='not-connected') ? '共有帳簿にまだ接続していません。上で名前を入れて接続してから、もう一度お試しください'
+  : (e && (e.code==='permission-denied' || /permission/i.test(e.message||'')))
+  ? '保存が拒否されました。Firebase の Firestore ルールの更新が必要です（startBalance と starts を許可）'
+  : '保存できませんでした（'+((e&&e.code)||e)+'）';
+$('dropPerson').onclick = async ()=>{
+  const k = $('who').value; if(!k) return;
+  try{ await store.dropPerson(k); $('who').value = me || ''; toast(`「${nameOf(k)}」を一覧から外しました`); }
+  catch(e){ toast(saveErr(e)); }
+};
+$('who').addEventListener('change', ()=>renderPeople());
+$('moveLegacy').onclick = async ()=>{
+  const who = $('who').value, v = settings.startBalance||0;
+  if(!who || !v) return;
+  try{ await store.moveLegacy(who); toast(`${fmt(v)} aUEC を ${nameOf(who)} の開始額に移しました`); }
+  catch(e){ toast(saveErr(e)); }
+};
+$('who').addEventListener('change', ()=>{ const v = startsFor(balScope())[$('who').value]||0; $('startBal').value = v ? fmt(v) : ''; });
+/* 残高補正: ゲーム内の実際の所持金に合わせて、差額を「残高補正」として記録する（今表示している期の中で計算） */
+function currentBalanceOf(who){
+  const sc = balScope();
+  return SHARED ? (personBalances(sc).each[who]||0) : compute(entries.filter(e=>inScope(sc, e.date)), totalStart(sc)).balance;
+}
+async function adjustTo(who, v){
+  const sc = balScope();
+  const diff = v - currentBalanceOf(who);
+  if(diff===0){ toast('記録と一致しています'); return true; }
+  // 過去の期を見ているときは、その期の最終日に補正を入れる（今日に入れると別の期に入ってしまう）
+  const date = (sc && sc.to && sc.to < today()) ? sc.to : today();
+  const e = {date, type:'adjust', amount:diff, memo:'残高補正', createdAt:Date.now()};
+  if(SHARED && who) e.by = who;
+  try{ await store.add(e); toast((SHARED ? nameOf(who) + ' の' : '') + '差額 ' + sfmt(diff) + ' を補正として記録しました'); return true; }
+  catch(err){ toast(saveErr(err)); return false; }
+}
+$('saveActual').onclick = async ()=>{
+  const v = parseAmount($('actualBal').value);
+  if(isNaN(v)){ toast('ゲーム内の現在額を入力してください'); return; }
+  if(await adjustTo(SHARED ? $('who').value : '', v)) $('actualBal').value = '';
+};
+/* 所持金のカード（個人用は上の所持金の欄）の「残高補正」ボタン → 小窓で金額を入れる */
+let adjWho = '';
+function openAdjPop(who){
+  if(readOnly) return;
+  adjWho = who;
+  $('adjTitle').textContent = SHARED ? `${nameOf(who)} の残高補正` : '残高補正';
+  $('adjNow').textContent = `アプリ上の所持金${scopeName() ? '（' + scopeName() + '）' : ''}: ${fmt(currentBalanceOf(who))} aUEC`;
+  $('adjInput').value = ''; $('adjPreview').textContent = '';
+  $('adjPop').hidden = false; $('adjInput').focus();
+}
+$('adjInput').addEventListener('input', ()=>{
+  const v = parseAmount($('adjInput').value);
+  $('adjPreview').innerHTML = isNaN(v) ? '' : `差額 <b class="${cls(v - currentBalanceOf(adjWho))}">${sfmt(v - currentBalanceOf(adjWho))}</b> aUEC を「残高補正」として記録します`;
+});
+$('adjForm').addEventListener('submit', async ev=>{
+  ev.preventDefault();
+  const v = parseAmount($('adjInput').value);
+  if(isNaN(v)){ $('adjPreview').textContent = 'ゲーム内の所持金を数字で入れてください（例: 2498287 / 2.5m）'; return; }
+  if(await adjustTo(adjWho, v)) $('adjPop').hidden = true;
+});
+$('adjClose').onclick = ()=>{ $('adjPop').hidden = true; };
+document.addEventListener('click', ev=>{ const b = ev.target.closest('[data-adj]'); if(b) openAdjPop(b.dataset.adj); });
+$('clearBtn').onclick = ()=>{
+  if(!entries.length){ toast('削除する記録はありません'); return; }
+  $('clearMsg').innerHTML = `<b>${fmt(entries.length)}件</b>の記録をすべて削除します。${SHARED?'共有している相手の画面からも消えます。':''}元に戻せないので、必要なら先に「CSVをコピー」で控えを取ってください。開始時の所持金の設定は残ります。`;
+  $('clearConfirm').hidden = false; $('clearBtn').hidden = true; $('clearCancel').focus();
+};
+$('clearCancel').onclick = ()=>{ $('clearConfirm').hidden = true; $('clearBtn').hidden = false; };
+$('clearGo').onclick = async ()=>{
+  const n = entries.length;
+  $('clearGo').disabled = true;
+  try{ await store.clearAll(); toast(`${fmt(n)}件の記録を削除しました`); $('clearCancel').onclick(); }
+  catch(e){ toast('削除できませんでした（'+(e.code||e)+'）'); }
+  finally{ $('clearGo').disabled = false; }
+};
+$('csvBtn').onclick = async ()=>{
+  const {days} = compute(entries, totalStart());
+  const q = s => '"'+String(s||'').replace(/"/g,'""')+'"';
+  const lines = ['日付,種別,金額,ミッション,船,メモ,'+(SHARED?'記録者,':'')+'記録後の所持金'];
+  for(const d of days) for(const e of d.items)
+    lines.push([e.date, typeOf(e.type).label, e.amount, q(e.mission), q(e.ship), q(e.memo)].concat(SHARED?[q(nameOf(e.by))]:[], [e.after]).join(','));
+  try{ await navigator.clipboard.writeText(lines.join('\n')); toast('CSVをコピーしました（'+(lines.length-1)+'件）'); }
+  catch(e){ toast('コピーできませんでした'); }
+};
+
+let tt;
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.hidden=false; clearTimeout(tt); tt=setTimeout(()=>t.hidden=true, 3200); }
+
+if(SHARED){
+  document.title = 'aUEC 共有収支帳';
+  $('brand').innerHTML = 'StarCitizen <span>SHARED LEDGER</span>';
+  $('subtitle').textContent = 'STAR CITIZEN ・ 共有口座';
+}
+if(!SHARED) $('soloAdj').hidden = false;
+$('verTag').textContent = 'v' + APP_VERSION;
+
+/* ---------- 公開版: 手入力欄とバックアップ、ファン作品の表記 ---------- */
+if(PUBLIC){
+  $('addPanel').hidden = false;
+  $('backupBox').hidden = false;
+}
+$('bkSave').onclick = ()=>{
+  const blob = new Blob([JSON.stringify({app:'sc-ledger', version:1, savedAt:new Date().toISOString(), entries, settings})], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = `sc-ledger-backup-${today()}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
+  toast(`${fmt(entries.length)}件の記録をバックアップに保存しました`);
+};
+// 復元は「足し合わせ」: 今ある記録は消さず、バックアップにあって今ない記録だけを加える（同じ記録は ID で見分ける）
+$('bkFile').onchange = async ev=>{
+  const f = ev.target.files[0]; ev.target.value = '';
+  if(!f) return;
+  let j; try{ j = JSON.parse(await f.text()); }catch(e){ j = null; }
+  if(!j || !Array.isArray(j.entries)){ toast('バックアップのファイルを読めませんでした'); return; }
+  const have = new Set(entries.map(e=>e.id));
+  const add = j.entries.filter(e=>e && e.id && e.date && typeof e.amount === 'number' && !have.has(e.id));
+  entries = entries.concat(add);
+  const empty = !(settings.startBalance) && !Object.keys(settings.starts||{}).length;
+  if(empty && j.settings) settings = {startBalance:0, ...j.settings};
+  store.saveLocal(); render();
+  toast(`${fmt(add.length)}件の記録を復元しました`);
+};
+/* ---------- 画面のテーマ（自動 = パソコンの明るい・暗い設定に合わせる）。このブラウザで覚える ---------- */
+$('langSel').value = LANG;
+$('langSel').onchange = ()=>{ try{ localStorage.setItem(LANG_KEY, $('langSel').value); }catch(e){} location.reload(); };
+const SKIN_KEY = 'auec-ledger-skin';
+const applySkin = v => { if(v && !$('skinSel').querySelector(`option[value="${v}"]`)) v = ''; if(v) document.documentElement.dataset.skin = v; else delete document.documentElement.dataset.skin; $('skinSel').value = v; };
+try{ applySkin(localStorage.getItem(SKIN_KEY) || ''); }catch(e){ applySkin(''); }
+/* 深海テーマ: ページ全体のどこまで下りたか（0〜1）で、暗幕を上から下まで均等に濃くする（以前は 1400px で真っ暗になり、急すぎた）。
+   1コマに1回だけ、値が変わったときだけ書き換える */
+let abyssTick = false, abyssLast = -1;
+const abyssDepth = ()=>{ abyssTick = false; if(document.documentElement.dataset.skin !== 'abyss') return;
+  const max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+  const v = Math.round(Math.min(1, Math.max(0, scrollY / max)) * 200) / 200;
+  if(v === abyssLast) return;
+  abyssLast = v; $('abyssShade').style.opacity = (.15 + Math.pow(v, 1.6) * .85).toFixed(3);   // 上は暗くなりにくく、下へ行くほど早く暗く（底で真っ暗）
+};
+addEventListener('scroll', ()=>{ if(!abyssTick){ abyssTick = true; requestAnimationFrame(abyssDepth); } }, {passive:true});
+abyssDepth();
+$('skinSel').onchange = ()=>{ const v = $('skinSel').value; applySkin(v); try{ localStorage.setItem(SKIN_KEY, v); }catch(e){} abyssLast = -1; abyssDepth(); render(); };
+/* ---------- 更新マーク: 押すとページを最新にする。Web版は新しい版が出ていたらマークに印を付ける ---------- */
+$('hdrReload').onclick = async ()=>{
+  // ブラウザに残った古いページを使わないよう、取り直してから読み込み直す
+  try{ if(MODE === 'web') await fetch(location.pathname, {cache:'reload'}); }catch(e){}
+  location.reload();
+};
+if(MODE === 'web'){
+  const checkNew = async ()=>{
+    try{
+      const t = await (await fetch(location.pathname + '?check=' + Date.now(), {cache:'no-store'})).text();
+      const v = (t.match(/const APP_VERSION = '([^']+)'/)||[])[1];
+      if(v && v !== APP_VERSION){ $('hdrReload').classList.add('has-update'); $('hdrReload').title = `新しい版 v${v} があります。押すと更新します`; }
+    }catch(e){}
+  };
+  setTimeout(checkNew, 5000);
+  setInterval(checkNew, 5 * 60 * 1000);
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) checkNew(); });
+}
+$('verTag').title = '更新日時 ' + APP_UPDATED.replace(/-/g,'.');
+$('appFoot').innerHTML = `<span>aUEC Ledger <b class="num">v${APP_VERSION}</b>（${PUBLIC ? '公開版' : {solo:'個人用',shared:'共有用',web:'共有用・Web'}[MODE]}）</span><span>更新日時 <span class="num">${APP_UPDATED.replace(/-/g,'.')}</span></span>`
+  + (PUBLIC ? `<span class="fanote">非公式のファン作品です。Cloud Imperium Games とは関係ありません。Star Citizen® は Cloud Imperium Rights LLC の商標です。記録はこのブラウザ内に保存され、どこにも送信されません。</span>` : '');
+$('date').value = today();
+renderChips(); setDir(1);
+const scReady = loadGameData();
+initStore();
+</script>
+</body>
+</html>
