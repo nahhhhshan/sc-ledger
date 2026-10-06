@@ -113,6 +113,10 @@ async function initWeb(){
       onProgress && onProgress(Math.min(i + 500, list.length));
     }
   };
+  store.removeMany = async ids => {
+    for(let i = 0; i < ids.length; i += 200) chk(await E().delete().eq('ledger_id', lid).in('id', ids.slice(i, i + 200)));
+    const del = new Set(ids); entries = entries.filter(x => !del.has(x.id)); render();
+  };
   store.clearAll = async () => { chk(await E().delete().eq('ledger_id', lid)); entries = []; render(); };
   store.setStart = v => saveSettings({startBalance:v});
   store.setPersonStart = (k, v) => saveSettings({starts:{...(settings.starts || {}), [k]:v}});
